@@ -3,7 +3,6 @@ import pandas
 import json 
 
 
-
 class Marco:
     def __init__(self):
         self.metadata = []
@@ -52,5 +51,4 @@ class Marco:
 
         if filename:
             self.save_metadata(filename)
-
 

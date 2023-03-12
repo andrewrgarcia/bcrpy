@@ -1,6 +1,10 @@
 # BCRPclient
 
-Un cliente API para el [Banco Central de Reserva del Peru (BCRP)](https://www.bcrp.gob.pe/)
+Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRPData](https://estadisticas.bcrp.gob.pe/estadisticas/series/) del [Banco Central de Reserva del Peru (BCRP)](https://www.bcrp.gob.pe/) escrito para Python. Este cliente es un _wrapper_ de la [API para Desarrolladores](https://estadisticas.bcrp.gob.pe/estadisticas/series/ayuda/api) del BCRP.
+
+![](img/logo-bcrp.png)
+
+
 
 # Usage
 
