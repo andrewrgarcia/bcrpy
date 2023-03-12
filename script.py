@@ -1,15 +1,27 @@
 import BCRPclient as BCRP
 
-info = BCRP.Marco()
+import pandas
+dis = BCRP.Marco()
 
-# info.get_metadata()
-info.load_metadata()
+dis.get_metadata()
+# dis.load_metadata()
 
-print(info.metadata)
+# print(dis.metadata)
 
-info.query()
-info.query('PN00015MM')
+# dis.consulta()
+# dis.consulta('PN00015MM')
 
-info.codigos = ['PD39793AM','PN00015MM', 'PN00015MM']
+# dis.codigos = ['PN01288PM','PN01289PM']
+# dis.ref_metadata('metadata_refined.csv')
 
-info.refine('metadata_refined.csv')
+# '''https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01288PM-PN01289PM/\
+# grafico/2010-1/2016-9/esp'''  # TEMPLATE
+
+
+# dis.load_metadata()
+# dis.idioma = 'esp'
+# dis.codigos = ['PN01288PM','PN01289PM','PN00015MM']
+
+# dis.state_inputs()
+
+# df = dis.GET('GET.csv')
