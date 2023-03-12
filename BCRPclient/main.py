@@ -1,6 +1,8 @@
 import requests 
 import pandas
 import json 
+import matplotlib.pyplot as plt 
+plt.style.use("seaborn-pastel")
 
 
 class Marco:
@@ -10,25 +12,22 @@ class Marco:
         self.formato = 'json'
         self.fechaini = '2010-1'
         self.fechafin = '2016-9'
-        self.periodo = ''
         self.idioma = 'ing'
 
     def state_inputs(self):
 
-        print('''
-        self.metadata = {}
-        self.codigos = {}
-        self.formato = {}
-        self.fechaini = {}
-        self.fechafin = {}
-        self.periodo = {}
-        self.idioma = {}
-        '''.format('<vacio>' if len(self.metadata)==0 else type(self.metadata),
+        print('''running current inputs state...\n
+self.metadata = {}
+self.codigos = {}
+self.formato = {}
+self.fechaini = {}
+self.fechafin = {}
+self.idioma = {}
+'''.format('<vacio>' if len(self.metadata)==0 else type(self.metadata),
         self.codigos,
         self.formato,
         self.fechaini, 
         self.fechafin,
-        '<vacio>' if len(self.periodo)==0 else self.periodo,
         self.idioma))
 
 
@@ -49,8 +48,8 @@ class Marco:
             self.metadata.to_csv(filename,sep=";",index=False, index_label=False)
 
         
-    def consulta(self,codigo='PD39793AM'):
-        print('corriendo consulta...\n')
+    def query(self,codigo='PD39793AM'):
+        print('running query for {}...\n'.format(codigo))
         self.get_metadata() if len(self.metadata) == 0 else None
         
         df = self.metadata
@@ -82,7 +81,7 @@ class Marco:
         root = 'https://estadisticas.bcrp.gob.pe/estadisticas/series/api'
         format = self.formato 
         code_series = '-'.join(self.codigos)
-        period = self.periodo if len(self.periodo) != 0 else '{}/{}'.format(self.fechaini,self.fechafin) 
+        period = '{}/{}'.format(self.fechaini,self.fechafin) 
         language = self.idioma
 
         url = "{}/{}/{}/{}/{}".format(root,code_series,format,period,language)
@@ -96,10 +95,19 @@ class Marco:
         df = pandas.DataFrame(columns=header) # Note that there are now row data inserted.
 
         for j in dict['periods']:
-            df.loc[j['name']] = j['values']
+            # print(j['values'])
+            df.loc[j['name']] = [float(ij) if ij!='n.d.' else None for ij in j['values'] ]
 
         if filename:
             df.to_csv(filename,sep=",")
         
-        print(df)
+        # print(df)
         return df
+
+    def plot(self, data,title='', func='plot'):
+
+        plt.title(title, fontsize=9)
+        plt.grid(axis='y')
+        eval('plt.{}(data)'.format(func))
+        plt.xticks(data.index, rotation =60)
+        plt.tight_layout()
