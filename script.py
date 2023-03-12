@@ -1,27 +1,39 @@
 import BCRPclient as BCRP
+import matplotlib.pyplot as plt 
 
-import pandas
-dis = BCRP.Marco()
+# import pandas
+banc = BCRP.Marco()
 
-dis.get_metadata()
-# dis.load_metadata()
+banc.get_metadata()
+# banc.load_metadata()
 
-# print(dis.metadata)
+print(banc.metadata)
 
-# dis.consulta()
-# dis.consulta('PN00015MM')
+banc.query()
+banc.query('PN00015MM')
 
-# dis.codigos = ['PN01288PM','PN01289PM']
-# dis.ref_metadata('metadata_refined.csv')
-
-# '''https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01288PM-PN01289PM/\
-# grafico/2010-1/2016-9/esp'''  # TEMPLATE
+# banc.codigos = ['PN01288PM','PN01289PM']
+# banc.ref_metadata('metadata_refined.csv')
 
 
-# dis.load_metadata()
-# dis.idioma = 'esp'
-# dis.codigos = ['PN01288PM','PN01289PM','PN00015MM']
 
-# dis.state_inputs()
 
-# df = dis.GET('GET.csv')
+
+
+
+# banc.codigos = ['PN01288PM','PN01289PM','PN00015MM']
+# banc.fechaini = '2020-1'
+# banc.fechafin = '2023-1'
+
+# banc.state_inputs()
+
+# df = banc.GET('GET.csv')
+
+
+
+# for name in df.columns:
+#     plt.figure(figsize=(9, 4))
+
+#     banc.plot(df[name],name,'plot')
+#     plt.show()
+# plt.show()
