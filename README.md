@@ -134,12 +134,12 @@ plt.show()
 
 running current inputs state...
 
-_self.metadata = \<vacio>
-self.codigos = ['PN01288PM', 'PN01289PM', 'PN00015MM']
-self.formato = json
-self.fechaini = 2020-1
-self.fechafin = 2023-1
-self.idioma = ing_
+        self.metadata = \<vacio>
+        self.codigos = ['PN01288PM', 'PN01289PM', 'PN00015MM']
+        self.formato = json
+        self.fechaini = 2020-1
+        self.fechafin = 2023-1
+        self.idioma = ing
 
 https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01288PM-PN01289PM-PN00015MM/json/2020-1/2023-1/ing
 
