@@ -67,6 +67,7 @@ banc.query('PN00015MM')
 running query for PD39793AM...
 
 PD39793AM es indice 14855 en metadatos
+```json
 {
         "Código de serie": "PD39793AM",
         "Categoría de serie": "Expectativas Empresariales",
@@ -82,9 +83,11 @@ PD39793AM es indice 14855 en metadatos
         "Fecha de fin": "Sep-2022",
         "Memo": NaN
 }
+```
 running query for PN00015MM...
 
 PN00015MM es indice 14 en metadatos
+```json
 {
         "Código de serie": "PN00015MM",
         "Categoría de serie": "Sociedades creadoras de depósito",
@@ -100,7 +103,7 @@ PN00015MM es indice 14 en metadatos
         "Fecha de fin": "Sep-2022",
         "Memo": NaN
 }
-
+```
 
 #### [In]
 ```ruby
