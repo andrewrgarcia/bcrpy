@@ -1,4 +1,4 @@
-# BCRPclient
+# bcrpy
 
 Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRPData](https://estadisticas.bcrp.gob.pe/estadisticas/series/) del [Banco Central de Reserva del Peru (BCRP)](https://www.bcrp.gob.pe/) escrito para Python. Este cliente es un _wrapper_ de la [API para Desarrolladores](https://estadisticas.bcrp.gob.pe/estadisticas/series/ayuda/api) del BCRP.
 
@@ -6,29 +6,22 @@ Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRP
 
 
 
-# Use
+# Installation and Local Usage
 
-To import this reposito |ry to your local environment and access it (on terminal):
-
-```ruby
-git clone git@github.com:[your-github-username]/BCRPclient.git
-cd BCRPclient
-```
-
-It is recommended you run this project using a virtualenv virtual environment. To do so, follow the below simple protocol to create the virtual environment:
+To import this repository to your local environment and access it (on terminal):
 
 ```ruby
 virtualenv venv
 source venv/bin/activate
-pip install -r requirements.in
+pip install bcrpy
 ```
 
 # Examples
 #### [In]
 ```ruby
-import BCRPclient as BCRP
+import bcrpy
 
-banc = BCRP.Marco()			# cargar objeto
+banc = bcrpy.Marco()			# cargar objeto
 
 banc.get_metadata()			# obtener todos los metadatos del BCRPData 
 print(banc.metadata)		# imprimir metadatos obtenidos
@@ -51,9 +44,9 @@ print(banc.metadata)		# imprimir metadatos obtenidos
 
 #### [In]
 ```ruby
-import BCRPclient as BCRP
+import bcrpy
 
-banc = BCRP.Marco()			# cargar objeto
+banc = bcrpy.Marco()			# cargar objeto
 
 #hacer una consulta del codigo de serie predeterminado de este metodo (actualmente 'PD39793AM') con el API del BCRPData
 banc.query()			
@@ -107,10 +100,10 @@ PN00015MM es indice 14 en metadatos
 
 #### [In]
 ```ruby
-import BCRPclient as BCRP
+import bcrpy
 import matplotlib.pyplot as plt 
 
-banc = BCRP.Marco()	#cargar objeto
+banc = bcrpy.Marco()	#cargar objeto
 
 #escoger los inputs de los datos que se desean extraer del BCRPData (otros datos como banc.idioma (='ing') son predeterminados, pero tambien se pueden cambiar)
 banc.codigos = ['PN01288PM','PN01289PM','PN00015MM']

@@ -1,8 +1,8 @@
-import BCRPclient as BCRP
+import bcrpy
 import matplotlib.pyplot as plt 
 import numpy as np
 # import pandas
-banc = BCRP.Marco()
+banc = bcrpy.Marco()
 
 # banc.get_metadata()
 banc.load_metadata()

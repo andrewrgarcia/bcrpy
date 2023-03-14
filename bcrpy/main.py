@@ -8,7 +8,7 @@ from tqdm import tqdm
 from time import sleep
 
 import matplotlib.pyplot as plt 
-from BCRPclient.anexo import Levenshtein
+from bcrpy.anexo import Levenshtein
 plt.style.use("seaborn-pastel")
 
 
