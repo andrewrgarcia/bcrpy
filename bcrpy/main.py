@@ -9,11 +9,27 @@ from time import sleep
 
 import matplotlib.pyplot as plt 
 from bcrpy.anexo import Levenshtein
-plt.style.use("seaborn-pastel")
 
 
 class Marco:
     def __init__(self):
+        '''Este es el marco principal para almacenar variables y ejecutar metodos para extraer, buscar y manejar datos. 
+
+        Parametros
+        ----------
+        metadata: <Pandas DataFrame>
+            Los metadatos de las series estadísticas del BRCPData, los cuales pueden ser reducidos con el metodo ref_metadata de esta `class`. 
+        codigos : list(str)
+            lista de codigos de series en interes para usar con los metodos de esta `class`. 
+        formato : str
+            formato para extraer / procesar datos (predeterminado: json)
+        fechaini : str
+            fecha de inicio para la(s) serie(s) seleccionada(s) en mes año (A) y mes (M) (formato AAAA-M)
+        fechafin : str
+            fecha de final para la(s) serie(s) seleccionada(s) en mes año (A) y mes (M) (formato AAAA-M)
+        idioma : str
+            idioma seleccionado (predeterminado: ing) otra opcion es 'esp'
+        '''
         self.metadata = ''
         self.codigos = ['PN01288PM','PN01289PM']
         self.formato = 'json'
@@ -22,15 +38,17 @@ class Marco:
         self.idioma = 'ing'
 
     def state_inputs(self):
+        '''Declara el estado actual de todas las variables constructoras de la clase Marco. 
+        '''
 
-        print('''running current inputs state...\n
+        print('''corriendo estado actual de todas las variables constructoras...\n
 self.metadata = {}
 self.codigos = {}
 self.formato = {}
 self.fechaini = {}
 self.fechafin = {}
 self.idioma = {}
-'''.format('<vacio>' if len(self.metadata)==0 else type(self.metadata),
+'''.format('<vacio>' if len(self.metadata)==0 else str(type(self.metadata))+' size: '+str(self.metadata.shape),
         self.codigos,
         self.formato,
         self.fechaini, 
@@ -39,6 +57,13 @@ self.idioma = {}
 
 
     def get_metadata(self, filename='metadata.csv'): 
+        '''Extrae todos los metadatos de BCRPData. 
+        
+        Parametros
+        ----------
+        filename : str
+            Nombre del archivo para guardar todos los metadatos extraidos como un archivo .csv (predeterminado: 'metadata.csv'). Si se desea no guardar un archivo, cambiar a filename=''
+        '''
         self.metadata = pandas.read_csv(
             'https://estadisticas.bcrp.gob.pe/estadisticas/series/metadata', delimiter=';', encoding='latin-1'
             )
@@ -47,20 +72,42 @@ self.idioma = {}
             self.metadata.to_csv(filename,sep=";",index=False, index_label=False)
 
     def load_metadata(self,filename='metadata.csv'):
+        '''Carga los metadatos guardados como archivo .csv a Python.
+
+        Parametros
+        ----------
+        filename : str
+            Nombre del archivo .csv del cual cargar los metadatos a Python.
+        '''
+
         if filename[-3:] == 'csv':
             self.metadata = pandas.read_csv(filename, delimiter=';')
 
     def save_metadata(self,filename='metadata_new.csv'):
+        '''Guarda los metadatos de self.metadata como archivo .csv
+
+        Parametros
+        ----------
+        filename : str
+            Nombre para el archivo .csv (predeterminado = 'metadata_new.csv')
+        '''
         if filename[-3:] == 'csv':
             self.metadata.to_csv(filename,sep=";",index=False, index_label=False)
 
         
     def query(self,codigo='PD39793AM'):
+        '''Consulta (query) de codigo de serie, impresa en formato json. 
+
+        Parametros
+        ----------
+        codigo : str
+            Nombre de codigo de series a consultar
+        '''
         self.get_metadata() if len(self.metadata) == 0 else None
         df = self.metadata
 
 
-        print('running query for {}...\n'.format(codigo))
+        print('corriendo query para {}...\n'.format(codigo))
 
         index = df.index[df.iloc[:,0] == codigo].tolist()
         print('{} es indice {} en metadatos'.format(codigo, index[0]))
@@ -77,10 +124,24 @@ self.idioma = {}
 
 
     def wordsearch(self,keyword='economia',fidelity=0.65,columnas='all',verbose=False):
+        '''Busqueda difusa de palabra clave (keyword) en metadatos de BCRPData. Regresa una tabla de 
+        datos en formato <Pandas DataFrame> de los metadatos asociados con aquella palabra. 
 
-        print('running word search: `{}` (fidelity = {})* '.format(keyword,fidelity))
-        print('*measured with Levenshtein similarity ratio')
-        print('please wait...\n')
+        Parametros
+        ----------
+        keyword : str
+            Palabra clave para reducir los metadatos
+        fidelity : float
+            Este es el Levenshtein similarity ratio (predeterminado=0.65). Un fidelity de 1.00 solo regresara metadatos que contienen palabras que coinciden con la palabra clave al 100%.
+        columnas : str
+            Indices de columnas de los metadatos seleccionados para correr el metodo. Predeterminado='all' corre el metodo en todas las columnas. 
+        verbose : bool
+            Muestra las columnas que estan siendo elegidas mientras el metodo corre (predeterminado=False)
+        '''
+
+        print('corriendo wordsearch: `{}` (fidelity = {})* '.format(keyword,fidelity))
+        print('*medido con Levenshtein similarity ratio')
+        print('por favor esperar...\n')
 
         INDICES = []
         df=  self.get_metadata() if len(self.metadata) == 0 else self.metadata
@@ -111,7 +172,14 @@ self.idioma = {}
         return new_df
 
     def ref_metadata(self,filename=False):
-        '''refinar metadata'''
+        '''Reduce los metadatos en self.metadata a aquellos perteneciendo a los codigos de serie declarados en self.codigos. 
+
+        Parametros
+        ----------
+        filename : str (opcional)
+            Nombre para guardar la informacion de la modificada self.metadata como un archivo .csv 
+        '''
+                
         df=self.metadata
         indices = [ df.index[df.iloc[:,0] == k].tolist()[0] for k in self.codigos ]
         
@@ -122,6 +190,13 @@ self.idioma = {}
 
 
     def GET(self,filename=False):
+        '''Extrae los datos del BCRPData selecionados por las previamente-declaradas variables `self.codigos`, `self.fechaini`, `self.fechafin`, `self.formato`, y `self.idioma`. 
+
+        Parametros
+        ----------
+        filename : str (opcional)
+            Nombre para guardar los datos extraidos como un archivo .csv
+        '''
 
         root = 'https://estadisticas.bcrp.gob.pe/estadisticas/series/api'
         format = self.formato 
@@ -149,9 +224,23 @@ self.idioma = {}
         # print(df)
         return df
 
-    def plot(self, data,title='', func='plot'):
+    def plot(self, data, title='', titlesize=9, func='plot'):
+        '''Grafica x-y data.
 
-        plt.title(title, fontsize=9)
+        Parametros
+        ----------
+        data : <Pandas DataFrame>
+            Data x-y extraida de BCRPData, x es fecha y es cantidad. 
+        title : str
+            Titulo para grafica
+        func : str
+            Tipo de grafica. 'plot' es grafica comun, 'semilogy' es grafica con escala logaritmica en y-axis.  
+        titlesize : str
+            Tamaño de titulo para grafica
+        '''
+        plt.style.use("seaborn-pastel")
+
+        plt.title(title, fontsize=titlesize)
         plt.grid(axis='y')
         eval('plt.{}(data)'.format(func))
         plt.xticks(data.index, rotation =60)
