@@ -42,12 +42,12 @@ class Marco:
         '''
 
         print('''corriendo estado actual de todas las variables constructoras...\n
-self.metadata = {}
-self.codigos = {}
-self.formato = {}
-self.fechaini = {}
-self.fechafin = {}
-self.idioma = {}
+objeto.metadata = {}
+objeto.codigos = {}
+objeto.formato = {}
+objeto.fechaini = {}
+objeto.fechafin = {}
+objeto.idioma = {}
 '''.format('<vacio>' if len(self.metadata)==0 else str(type(self.metadata))+' size: '+str(self.metadata.shape),
         self.codigos,
         self.formato,
@@ -179,8 +179,11 @@ self.idioma = {}
         filename : str (opcional)
             Nombre para guardar la informacion de la modificada self.metadata como un archivo .csv 
         '''
-                
-        df=self.metadata
+
+        self.get_metadata() if len(self.metadata) == 0 else None
+    
+        df= self.metadata
+
         indices = [ df.index[df.iloc[:,0] == k].tolist()[0] for k in self.codigos ]
         
         self.metadata = self.metadata.loc[indices]

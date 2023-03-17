@@ -1,3 +1,14 @@
+import pickle 
+
+def dfload(filename):
+    '''Loads a pickled Pandas DataFrame with `filename` name'''
+    return pickle.load( open(filename, "rb" ),encoding='latin1')
+
+def dfsave(df,filename):
+    '''Saves a `df` Pandas DataFrame with `filename` name using the pickle module'''
+    return pickle.dump(df,open(filename,'wb'))
+
+
 
 def minDis(s1, s2, n, m, dp) :
     '''This is a memoized version of recursion i.e. Top-Down DP: to find minimum number
