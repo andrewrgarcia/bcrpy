@@ -1,5 +1,5 @@
-Welcome to bcrpy's documentation!
-===================================
+Bienvenido a la documentación de bcrpy!
+=========================================
 
 .. image:: ../img/bcrpy.png
   :width: 150
@@ -32,7 +32,7 @@ Tambien podrias hacer clic en la imagen de abajo para un tutorial interactivo a 
 
 .. note::
 
-   This project is under active development.
+   Este proyecto se encuentra bajo desarrollo activo.
 
 Contenido
 --------
