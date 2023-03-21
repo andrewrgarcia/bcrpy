@@ -6,11 +6,12 @@ banc = bcrpy.Marco()
 
 # banc.get_metadata()
 banc.load_metadata()
+plt.style.use('seaborn')
 
 print(banc.metadata)
 
-# banc.query()
-# banc.query('PN00015MM')
+banc.query()
+banc.query('PN00015MM')
 
 # banc.codigos = ['PN01288PM','PN01289PM']
 # banc.ref_metadata('metadata_refined.csv')
@@ -46,10 +47,5 @@ for name in df.columns:
     plt.figure(figsize=(9, 4))
 
     banc.plot(df[name],name,12)
-    # plt.grid(axis='y')
 
-    # plt.plot(df[name])
-    # plt.xticks(df[name].index, rotation = 60)
-
-    plt.show()
 plt.show()

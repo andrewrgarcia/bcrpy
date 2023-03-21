@@ -1,5 +1,8 @@
+script.py
 .metals
 venv
 __pycache__
 *.csv
+
+docs/build
 

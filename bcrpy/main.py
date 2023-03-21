@@ -217,9 +217,14 @@ objeto.idioma = {}
         header = [k['name'] for k in dict['config']['series'] ]
         df = pandas.DataFrame(columns=header) # Note that there are now row data inserted.
 
+
         for j in dict['periods']:
             # print(j['values'])
             df.loc[j['name']] = [float(ij) if ij!='n.d.' else None for ij in j['values'] ]
+
+
+        df.index = pandas.to_datetime(df.index)     #convert dates to datetime (this to zoom in and out the xlabel)
+
 
         if filename:
             df.to_csv(filename,sep=",")
@@ -241,10 +246,10 @@ objeto.idioma = {}
         titlesize : str
             Tamaño de titulo para grafica
         '''
-        plt.style.use("seaborn-pastel")
+        plt.style.use("seaborn")
 
         plt.title(title, fontsize=titlesize)
-        plt.grid(axis='y')
+        plt.grid(axis='x')
         eval('plt.{}(data)'.format(func))
-        plt.xticks(data.index, rotation =60)
+        # plt.xticks(data.index, rotation =60)
         plt.tight_layout()
