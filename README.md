@@ -23,3 +23,6 @@ pip install bcrpy
 bcrpy ha sido desarrollado con un protocolo de programación orientada a objetos (tambien conocido como *Object
 Oriented Programming (OOP)*) lo cual se reduce a que objetos pueden ser usados a almacenar metodos (funciones),
 datos, y su manejo de aquellos.
+
+
+[![](docs/img/colaboratory.svg)](https://colab.research.google.com/drive/1YdyCYeU0S98428WgBg4n9Ad9auKrurQZ?usp=sharing)
