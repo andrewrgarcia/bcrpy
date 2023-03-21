@@ -146,28 +146,27 @@ objeto.idioma = {}
         INDICES = []
         df=  self.get_metadata() if len(self.metadata) == 0 else self.metadata
 
-        loop_range = range(12) if columnas == 'all' else columnas
+
+        'placeholder dataframes (so that nothing gets overwritten)'
+        new_df = df.copy()
+        bool_df = df.copy()
+
+        'language processing; split titles into separate words and assess all with fuzzy string matching (True if similar word to keyword is found in titles/sentences)'
+        loop_range = range(14) if columnas == 'all' else columnas
         for k in tqdm(loop_range):
-            sim_words = []
-            for j in df.iloc[:,k]:
-                wordstring = str(j)
-                a = [Levenshtein(word,keyword) for word in wordstring.split()]
-                b = [(word,keyword) for word in wordstring.split()]
-                if (np.array(a) >= fidelity).any():
-                    sim_words.append(wordstring)
-            
-            sim_words=list(set(sim_words))
-            
-            print(sim_words) if verbose else None
-
+            bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: (np.array([Levenshtein(word,keyword) for word in str(x).split()]) >= fidelity).any() )
             sleep(.1)
-
             print()
-            if len(sim_words) !=0:
-                INDICES.extend(list(set(df.index[ df.iloc[:,k].isin(sim_words)].tolist())))
 
-        INDICES = list(set(INDICES))
-        new_df = df.iloc[INDICES]
+        'set remaining columns not matched to False'
+        False_cols = [i for i in range(14)]
+        [False_cols.remove(j) for j in loop_range]
+        for col in False_cols:
+            bool_df.iloc[:,col].values[:] = False
+
+        'keep dataframe rows which evaluate ANY of its columns to True'
+        new_df = new_df[bool_df.any(axis=1)]
+
         print('\n\n',new_df)
         return new_df
 
