@@ -22,6 +22,7 @@ lo cual se reduce a que objetos pueden ser usados a almacenar metodos (funciones
 
 Extraccion de metadatos y busqueda de palabras en aquellos
 -------------------------------------------------------------
+.. autofunction:: bcrpy.Marco.get_metadata
 
 En el caso de abajo, vemos como el objeto definido con la variable ``banco`` se usa para extraer los metadatos del BCRPData con el metodo ``get_metadata``,
 el cual la almacena como un ``Pandas DataFrame`` dentro de su variable constructora ``metadata``
@@ -39,7 +40,6 @@ el cual la almacena como un ``Pandas DataFrame`` dentro de su variable construct
 (14858, 14)
 
 Arriba vemos que los metadatos almacenados en ``banco.metadata`` contienen 14,858 filas con 14 columnas. 
-
 
 El siguiente ejemplo muestra el metodo ``wordsearch``, el cual usa un algoritmo de 
 `*fuzzy string matching* <https://www.ibm.com/docs/es/psfa/7.1.0?topic=functions-fuzzy-string-search>`_ para encontrar palabras parecidas a la palabra que esta siendo buscada. 
@@ -83,7 +83,6 @@ por favor esperar...
    6964            1970         2022   NaN          NaN  
 
    [1608 rows x 14 columns]
-
 
 Podemos ver en la primera linea del output que la fidelidad a encontrar la palabra exacta esta predeterminada en 0.65 (65%). 
 
@@ -139,9 +138,11 @@ por favor esperar...
 
    [596 rows x 14 columns]
 
+.. autofunction:: bcrpy.Marco.wordsearch
 
 Consultas con codigos de serie
 ---------------------------------
+.. autofunction:: bcrpy.Marco.query
 
 Tambien podemos hacer consultas individuales de un codigo de serie con el metodo ``query``, para que nos den la informacion mas organizada en una estructura de mapa (json). 
 Abajo, hacemos dos consultas con dos codigos de serie de la database: 
@@ -206,7 +207,6 @@ Abajo se definen los codigos de serie y el rango de fechas para despues imprimir
 
 Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cual se usa para hacer graficos con el metodo ``plot()`` del objeto definido como ``banco``. 
 
-
 .. code-block:: python
 
    import matplotlib.pyplot as plt
@@ -258,6 +258,8 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
 .. image:: ../img/Figure_4.png
   :width: 600
   :alt: figure 4
+
+.. autofunction:: bcrpy.Marco.plot
 
 Las graficas no se imprimen en el orden que se alistan en banco.codigos, pero en el orden que aparecen en las columnas en BCRPData. 
 

@@ -1,7 +1,7 @@
-API
-===
+Referencia API
+================
 
-See the below classes. 
+Ver
 
 .. autoclass:: bcrpy.Marco
    :members: 
