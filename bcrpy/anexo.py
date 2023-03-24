@@ -1,4 +1,14 @@
 import pickle 
+import pandas
+
+def load_csv(filename='metadata.csv'):
+    '''Loads a csv-formatted Pandas DataFrame saved with `filename` name'''
+    return pandas.read_csv(filename, delimiter=',')
+
+def save_csv(df,filename='myfile.csv'):
+    '''Saves a `df` Pandas DataFrame with `filename` name as a csv file'''
+    df.to_csv(filename)
+
 
 def dfload(filename):
     '''Loads a pickled Pandas DataFrame with `filename` name'''
@@ -58,9 +68,6 @@ def minDis(s1, s2, n, m, dp) :
         dp[n][m] = 1 + min(m1, min(m2, m3))
         return dp[n][m]
      
-
- 
-
 
 def Levenshtein(str1, str2):
     '''this is the Levenshtein similarity ratio 

@@ -4,6 +4,9 @@ import json
 import numpy as np
 import pandas
 
+from difflib import get_close_matches
+from iteration_utilities import flatten
+
 from tqdm import tqdm
 from time import sleep
 
@@ -17,8 +20,10 @@ class Marco:
 
         Parametros
         ----------
-        metadata: <Pandas DataFrame>
+        metadata: pandas.DataFrame
             Los metadatos de las series estadísticas del BRCPData, los cuales pueden ser reducidos con el metodo ref_metadata de esta `class`. 
+        data: pandas.DataFrame
+            Los datos extraidos del BRCPData de acuerdo a la informacion declarada en las variables constructoras (vea metodo `state_inputs()`) con el metodo `GET()` de esta clase.  
         codigos : list(str)
             lista de codigos de series en interes para usar con los metodos de esta `class`. 
         formato : str
@@ -30,7 +35,8 @@ class Marco:
         idioma : str
             idioma seleccionado (predeterminado: ing) otra opcion es 'esp'
         '''
-        self.metadata = ''
+        self.metadata = pandas.DataFrame([])
+        self.data = pandas.DataFrame([])
         self.codigos = ['PN01288PM','PN01289PM']
         self.formato = 'json'
         self.fechaini = '2010-1'
@@ -120,10 +126,26 @@ objeto.idioma = {}
         jsondata = json.dumps(dict,indent = 8,ensure_ascii=False)
         print(jsondata)
         return jsondata
+    
+    def querydict(self,codigo='PD39793AM'):
+
+        self.get_metadata() if len(self.metadata) == 0 else None
+        df = self.metadata
 
 
+        # print('corriendo query para {}...\n'.format(codigo))
 
-    def wordsearch(self,keyword='economia',fidelity=0.65,columnas='all',verbose=False):
+        index = df.index[df.iloc[:,0] == codigo].tolist()
+        # print('{} es indice {} en metadatos'.format(codigo, index[0]))
+
+        dict = self.metadata.loc[index].to_dict()
+        for i in dict.keys():
+            dict[i] = dict[i][index[0]]
+        dict.pop("Unnamed: 13" ) if "Unnamed: 13" in dict.keys() else None
+
+        return dict
+   
+    def wordsearch(self,keyword='economia',fidelity=0.65,columnas='all'):
         '''Busqueda difusa de palabra clave (keyword) en metadatos de BCRPData. Regresa una tabla de 
         datos en formato <Pandas DataFrame> de los metadatos asociados con aquella palabra. 
 
@@ -135,12 +157,10 @@ objeto.idioma = {}
             Este es el Levenshtein similarity ratio (predeterminado=0.65). Un fidelity de 1.00 solo regresara metadatos que contienen palabras que coinciden con la palabra clave al 100%.
         columnas : str
             Indices de columnas de los metadatos seleccionados para correr el metodo. Predeterminado='all' corre el metodo en todas las columnas. 
-        verbose : bool
-            Muestra las columnas que estan siendo elegidas mientras el metodo corre (predeterminado=False)
         '''
 
         print('corriendo wordsearch: `{}` (fidelity = {})* '.format(keyword,fidelity))
-        print('*medido con Levenshtein similarity ratio')
+        # print('*medido con Levenshtein similarity ratio')
         print('por favor esperar...\n')
 
         INDICES = []
@@ -154,7 +174,9 @@ objeto.idioma = {}
         'language processing; split titles into separate words and assess all with fuzzy string matching (True if similar word to keyword is found in titles/sentences)'
         loop_range = range(14) if columnas == 'all' else columnas
         for k in tqdm(loop_range):
-            bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: (np.array([Levenshtein(word,keyword) for word in str(x).split()]) >= fidelity).any() )
+            # bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: (np.array([Levenshtein(word,keyword) for word in str(x).split()]) >= fidelity).any() )
+            bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: True if \
+                                len(list(flatten([get_close_matches(keyword,[word],n=3,cutoff=fidelity) for word in str(x).split()]))) > 0 else False )
             sleep(.1)
             print()
 
@@ -191,13 +213,42 @@ objeto.idioma = {}
             self.save_metadata(filename)
 
 
-    def GET(self,filename=False):
-        '''Extrae los datos del BCRPData selecionados por las previamente-declaradas variables `self.codigos`, `self.fechaini`, `self.fechafin`, `self.formato`, y `self.idioma`. 
+    def ordenar_columnas(self,hacer=True):
+        '''sub-metodo para re-ordenar columnas de acuerdo a como fueron definidos en objeto.codigos (vea metodo `GET()` parametro "orden")
+
+        Parametros
+        ----------
+        hacer : bool
+            ordenarlas (True)
+        '''
+        self.get_metadata() if len(self.metadata) == 0 else None
+        df = self.metadata
+
+        user_order = [ '{} - {}'.format(self.querydict(codigo)["Grupo de serie"],self.querydict(codigo)["Nombre de serie"]) for codigo in self.codigos]
+        code_dict = {user_order[i] : self.codigos[i]  for i in range(len(self.codigos))}
+        
+        if hacer:
+            # print('before',self.data.columns)
+            self.data = self.data.reindex(columns=user_order)   
+            print('Orden de datos determinados por usuario:')
+
+            # print(self.data)
+        else:
+            print('Orden de datos predeterminados por BCRPData:')
+
+        for count, value in enumerate(self.data.columns,start=1):
+            print('{}\t{}\t{}'.format(count,code_dict[value],value))
+        # print(code_dict)
+
+    def GET(self,filename=False, orden=True):
+        '''Extrae los datos del BCRPData selecionados por las previamente-declaradas variables `objeto.codigos`, `objeto.fechaini`, `objeto.fechafin`, `objeto.formato`, y `objeto.idioma`. 
 
         Parametros
         ----------
         filename : str (opcional)
             Nombre para guardar los datos extraidos como un archivo .csv
+        orden : bool
+            Las columnas mantienen el orden declarados por el usuario en `objeto.codigos`  con opcion `orden=True` (predeterminado). Cuando `orden=False`, las columnas de los datos es la predeterminada por BCRPData. 
         '''
 
         root = 'https://estadisticas.bcrp.gob.pe/estadisticas/series/api'
@@ -207,10 +258,10 @@ objeto.idioma = {}
         language = self.idioma
 
         url = "{}/{}/{}/{}/{}".format(root,code_series,format,period,language)
-        print(url)
 
         'https://www.geeksforgeeks.org/response-json-python-requests/'
         response = requests.get(url)
+
         dict  = response.json()
 
         header = [k['name'] for k in dict['config']['series'] ]
@@ -224,12 +275,16 @@ objeto.idioma = {}
 
         df.index = pandas.to_datetime(df.index)     #convert dates to datetime (this to zoom in and out the xlabel)
 
+        self.data = df              #store obtained data from BCRPData in self.data constructor var
+
+        self.ordenar_columnas() if orden else self.ordenar_columnas(False)
+
+        print(url)
 
         if filename:
-            df.to_csv(filename,sep=",")
+            self.data.to_csv(filename,sep=",")
         
-        # print(df)
-        return df
+        return self.data
 
     def plot(self, data, title='', titlesize=9, func='plot'):
         '''Grafica x-y data.

@@ -22,7 +22,6 @@ lo cual se reduce a que objetos pueden ser usados a almacenar metodos (funciones
 
 Extraccion de metadatos y busqueda de palabras en aquellos
 -------------------------------------------------------------
-.. autofunction:: bcrpy.Marco.get_metadata
 
 En el caso de abajo, vemos como el objeto definido con la variable ``banco`` se usa para extraer los metadatos del BCRPData con el metodo ``get_metadata``,
 el cual la almacena como un ``Pandas DataFrame`` dentro de su variable constructora ``metadata``
@@ -47,42 +46,29 @@ En el caso de abajo, usamos ``wordsearch`` para buscar la palabra "economia" en 
 
 >>> banco.wordsearch('economia',columnas =[0,1])
 corriendo wordsearch: `economia` (fidelity = 0.65)* 
-*medido con Levenshtein similarity ratio
 por favor esperar...
 
 .. code-block:: ruby
 
-   50%|| 1/2 [00:01<00:01,  1.65s/it]
-   100%|| 2/2 [00:04<00:00,  2.10s/it]
-
-         Código de serie              Categoría de serie  \
-   8437       CD11605DA  Primera centuria independiente   
-   8438       CD11606DA  Primera centuria independiente   
-   8439       CD11607DA  Primera centuria independiente   
-   8440       CD11608DA  Primera centuria independiente   
-   8441       CD11609DA  Primera centuria independiente   
-   ...              ...                             ...   
-   6960       PM10083FA             Resultado económico   
-   6961       PM10084FA             Resultado económico   
-   6962       PM10085FA             Resultado económico   
-   6963       PM10086FA             Resultado económico   
-   6964       PM10087FA             Resultado económico   
+     0%|                                                                  | 0/2 [00:00<?, ?it/s]
+    50%||||||||||||||||||||||||||||||||||                                 | 1/2 [00:00<00:00,  3.17it/s]
+   100%|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 2/2 [00:00<00:00,  2.07it/s]
 
 
-      Fecha de inicio Fecha de fin  Memo  Unnamed: 13  
-   8437            1791         1862   NaN          NaN  
-   8438            1791         1876   NaN          NaN  
-   8439            1791         1876   NaN          NaN  
-   8440            1791         1876   NaN          NaN  
-   8441            1791         1876   NaN          NaN  
-   ...              ...          ...   ...          ...  
-   6960            1970         2022   NaN          NaN  
-   6961            1970         2022   NaN          NaN  
-   6962            1970         2022   NaN          NaN  
-   6963            1970         2022   NaN          NaN  
-   6964            1970         2022   NaN          NaN  
+         Código de serie      Categoría de serie  ... Memo Unnamed: 13
+   1137        PN01205PM  Tipo de cambio nominal  ...  NaN         NaN
+   1138        PN01206PM  Tipo de cambio nominal  ...  NaN         NaN
+   1139        PN01207PM  Tipo de cambio nominal  ...  NaN         NaN
+   1140        PN01208PM  Tipo de cambio nominal  ...  NaN         NaN
+   1141        PN01209PM  Tipo de cambio nominal  ...  NaN         NaN
+   ...               ...                     ...  ...  ...         ...
+   13886       PN38685FM     Resultado económico  ...  NaN         NaN
+   13887       PN38686FM     Resultado económico  ...  NaN         NaN
+   13888       PN38687FM     Resultado económico  ...  NaN         NaN
+   13889       PN38688FM     Resultado económico  ...  NaN         NaN
+   14586       PN39524FM     Resultado económico  ...  NaN         NaN
 
-   [1608 rows x 14 columns]
+   [476 rows x 14 columns]
 
 Podemos ver en la primera linea del output que la fidelidad a encontrar la palabra exacta esta predeterminada en 0.65 (65%). 
 
@@ -92,57 +78,44 @@ el metodo corre la busqueda de la palabra en todas las columnas.
 
 >>> banco.wordsearch('centuria',fidelity=1)
 corriendo wordsearch: `centuria` (fidelity = 1)* 
-*medido con Levenshtein similarity ratio
 por favor esperar...
 
 .. code-block:: ruby
 
-   8%|| 1/12 [00:01<00:17,  1.59s/it]
-   17%|| 2/12 [00:07<00:39,  3.95s/it]
-   25%|| 3/12 [00:20<01:15,  8.34s/it]
-   33%|| 4/12 [00:25<00:54,  6.87s/it]
-   42%|| 5/12 [00:27<00:36,  5.26s/it]
-   50%|| 6/12 [00:28<00:23,  3.85s/it]
-   58%|| 7/12 [00:30<00:15,  3.15s/it]
-   67%|| 8/12 [00:38<00:19,  4.81s/it]
-   75%|| 9/12 [00:44<00:15,  5.04s/it]
-   83%|| 10/12 [00:47<00:08,  4.28s/it]
-   92%|| 11/12 [00:48<00:03,  3.37s/it]
-   100%|| 12/12 [00:49<00:00,  4.13s/it]
+    0%|                                                                | 0/14 [00:00<?, ?it/s]
+    7%||||||                                                           | 1/14 [00:00<00:02,  4.36it/s]
+   14%||||||||||                                                       | 2/14 [00:00<00:04,  2.45it/s]
+   21%|||||||||||||||                                                  | 3/14 [00:02<00:09,  1.13it/s]
+   29%|||||||||||||||||||                                              | 4/14 [00:02<00:08,  1.22it/s]
+   36%||||||||||||||||||||||||                                         | 5/14 [00:03<00:06,  1.42it/s]
+   43%|||||||||||||||||||||||||||||                                    | 6/14 [00:03<00:04,  1.83it/s]
+   50%|||||||||||||||||||||||||||||||||                                | 7/14 [00:03<00:03,  2.24it/s]
+   57%||||||||||||||||||||||||||||||||||||||                           | 8/14 [00:04<00:03,  1.84it/s]
+   64%|||||||||||||||||||||||||||||||||||||||||||                      | 9/14 [00:05<00:03,  1.61it/s]
+   71%|||||||||||||||||||||||||||||||||||||||||||||||                  | 10/14 [00:05<00:02,  1.96it/s]
+   79%|||||||||||||||||||||||||||||||||||||||||||||||||||              | 11/14 [00:06<00:01,  2.22it/s]
+   86%||||||||||||||||||||||||||||||||||||||||||||||||||||||||         | 12/14 [00:06<00:00,  2.44it/s]
+   93%||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||     | 13/14 [00:06<00:00,  2.73it/s]
+   100%||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 14/14 [00:06<00:00,  2.03it/s]
 
-         Código de serie              Categoría de serie  \
-   8437       CD11605DA  Primera centuria independiente   
-   8438       CD11606DA  Primera centuria independiente   
-   8439       CD11607DA  Primera centuria independiente   
-   8440       CD11608DA  Primera centuria independiente   
-   8441       CD11609DA  Primera centuria independiente   
-   ...              ...                             ...   
-   9028       CD12207DA  Primera centuria independiente   
-   9029       CD12208DA  Primera centuria independiente   
-   9030       CD12209DA  Primera centuria independiente   
-   9031       CD12210DA  Primera centuria independiente   
-   9032       CD12211DA  Primera centuria independiente   
 
-      Fecha de inicio Fecha de fin  Memo  Unnamed: 13  
-   8437            1791         1862   NaN          NaN  
-   8438            1791         1876   NaN          NaN  
-   8439            1791         1876   NaN          NaN  
-   8440            1791         1876   NaN          NaN  
-   8441            1791         1876   NaN          NaN  
-   ...              ...          ...   ...          ...  
-   9028            1926         1933   NaN          NaN  
-   9029            1918         1924   NaN          NaN  
-   9030            1918         1924   NaN          NaN  
-   9031            1922         1933   NaN          NaN  
-   9032            1921         1933   NaN          NaN  
+         Código de serie              Categoría de serie  ... Memo Unnamed: 13
+   8437       CD11605DA  Primera centuria independiente  ...  NaN         NaN
+   8438       CD11606DA  Primera centuria independiente  ...  NaN         NaN
+   8439       CD11607DA  Primera centuria independiente  ...  NaN         NaN
+   8440       CD11608DA  Primera centuria independiente  ...  NaN         NaN
+   8441       CD11609DA  Primera centuria independiente  ...  NaN         NaN
+   ...              ...                             ...  ...  ...         ...
+   9028       CD12207DA  Primera centuria independiente  ...  NaN         NaN
+   9029       CD12208DA  Primera centuria independiente  ...  NaN         NaN
+   9030       CD12209DA  Primera centuria independiente  ...  NaN         NaN
+   9031       CD12210DA  Primera centuria independiente  ...  NaN         NaN
+   9032       CD12211DA  Primera centuria independiente  ...  NaN         NaN
 
    [596 rows x 14 columns]
 
-.. autofunction:: bcrpy.Marco.wordsearch
-
 Consultas con codigos de serie
 ---------------------------------
-.. autofunction:: bcrpy.Marco.query
 
 Tambien podemos hacer consultas individuales de un codigo de serie con el metodo ``query``, para que nos den la informacion mas organizada en una estructura de mapa (json). 
 Abajo, hacemos dos consultas con dos codigos de serie de la database: 
@@ -212,35 +185,49 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
    import matplotlib.pyplot as plt
 
    #escoger los inputs de los datos que se desean extraer del BCRPData (otros datos como banco.idioma (='ing') son predeterminados, pero tambien se pueden cambiar)
-   banco.codigos = ['PN00015MM','PN01289PM','PD39793AM','PN01273PM']
+   banco.codigos = ['PN01273PM','PN00015MM','PN01289PM','PD39793AM']
    banco.fechaini = '2011-1'
    banco.fechafin = '2021-1'
 
    banco.state_inputs()			# mostrar el estado actual de los inputs escogidos 
 
-   df = banco.GET()	# obtener informacion de los inputs escogidos (arriba) con el API del BCRP 
+   # obtener informacion de los inputs seleccionados (arriba) en el mismo orden  
+   df = banco.GET()	
 
    #graficos (plots)
    for name in df.columns:
       plt.figure(figsize=(9, 4))
       banco.plot(df[name],name,12)
-
    plt.show()
 
-.. code-block:: ruby
 
-   [Out]
+``corriendo estado actual de todas las variables constructoras...``
 
-   corriendo estado actual de todas las variables constructoras...
+.. table:: 
+   :widths: 10 5 40
 
-   self.metadata = <class 'pandas.core.frame.DataFrame'> size: (14858, 14)
-   self.codigos = ['PN00015MM', 'PN01289PM', 'PD39793AM', 'PN01273PM']
-   self.formato = json
-   self.fechaini = 2011-1
-   self.fechafin = 2021-1
-   self.idioma = ing
+   ================ === ===========================================
+   objeto.metadata   =     <class 'pandas.core.frame.DataFrame'> size: (14858, 14)
+   objeto.codigos    =     ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
+   objeto.formato    =     json
+   objeto.fechaini   =     2011-1
+   objeto.fechafin   =     2021-1
+   objeto.idioma     =     ing
+   ================ === ===========================================
 
-   https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN00015MM-PN01289PM-PD39793AM-PN01273PM/json/2011-1/2021-1/ing
+``Orden de datos determinados por usuario:``
+
+.. table:: 
+   :widths: 10 20 50 
+
+   ====== ===================== ================================
+    1       PN01273PM            Índice de precios Lima Metropolitana (var% 12 meses) - IPC                                                                              
+    2       PN00015MM            Cuentas monetarias de las sociedades creadoras de depósito - Activos Internos Netos - Crédito al Sector Privado - ME (millones US$)     
+    3       PN01289PM            Índice de precios Lima Metropolitana (índice 2009 = 100) (descontinuada) - IPC Sin Alimentos y Energía                                  
+    4       PD39793AM            Expectativas empresariales sectoriales - Índice de expectativas del sector a 12 meses - Servicios                                       
+   ====== ===================== ================================
+
+https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01273PM-PN00015MM-PN01289PM-PD39793AM/json/2011-1/2021-1/ing
 
 
 .. image:: ../img/Figure_1.png
@@ -259,11 +246,11 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
   :width: 600
   :alt: figure 4
 
-.. autofunction:: bcrpy.Marco.plot
 
-Las graficas no se imprimen en el orden que se alistan en banco.codigos, pero en el orden que aparecen en las columnas en BCRPData. 
+El orden de las columnas en la tabla de datos ``pandas.DataFrame`` ``"df"`` ahora se colocan en el mismo orden en el cual han sido colocados  por el usuario en la variable ``banco.codigos``
+como opcion predeterminada. Si se desea usar el orden definido por BCRPData, reemplazar ``banco.GET()`` por ``banco.GET(orden=False)``. 
 
-Si se necesita consultar la identidad de los nombres de serie con sus codigos (y viceversa), este se puede hacer, nuevamente, con el metodo ``query``, demostrado abajo:
+La identidad de los nombres de serie con sus codigos, y en si cualquier lista con `x` codigos de series, se puede consultar con una iteracion del metodo ``query``, demostrado abajo:
 
 >>> [banco.query(codigo) for codigo in banco.codigos]   #referencia, codigos
 
@@ -271,6 +258,24 @@ Si se necesita consultar la identidad de los nombres de serie con sus codigos (y
 
    [Out]
 
+   corriendo query para PN01273PM...
+
+   PN01273PM es indice 1198 en metadatos
+   {
+         "Código de serie": "PN01273PM",
+         "Categoría de serie": "Inflación",
+         "Grupo de serie": "Índice de precios Lima Metropolitana (var% 12 meses)",
+         "Nombre de serie": "IPC",
+         "Fuente": "INEI",
+         "Frecuencia": "Mensual",
+         "Fecha de creación": "2022-04-08",
+         "Grupo de publicación": "Índice de precios al consumidor y tipo de cambio real",
+         "Área que publica": "Departamento de Estadísticas de Precios",
+         "Fecha de actualización": "2023-03-09",
+         "Fecha de inicio": "Abr-1950",
+         "Fecha de fin": "Sep-2022",
+         "Memo": NaN
+   }
    corriendo query para PN00015MM...
 
    PN00015MM es indice 14 en metadatos
@@ -322,24 +327,6 @@ Si se necesita consultar la identidad de los nombres de serie con sus codigos (y
          "Área que publica": "Departamento de Indicadores de la Actividad Economía",
          "Fecha de actualización": "2023-03-09",
          "Fecha de inicio": "Abr-2010",
-         "Fecha de fin": "Sep-2022",
-         "Memo": NaN
-   }
-   corriendo query para PN01273PM...
-
-   PN01273PM es indice 1198 en metadatos
-   {
-         "Código de serie": "PN01273PM",
-         "Categoría de serie": "Inflación",
-         "Grupo de serie": "Índice de precios Lima Metropolitana (var% 12 meses)",
-         "Nombre de serie": "IPC",
-         "Fuente": "INEI",
-         "Frecuencia": "Mensual",
-         "Fecha de creación": "2022-04-08",
-         "Grupo de publicación": "Índice de precios al consumidor y tipo de cambio real",
-         "Área que publica": "Departamento de Estadísticas de Precios",
-         "Fecha de actualización": "2023-03-09",
-         "Fecha de inicio": "Abr-1950",
          "Fecha de fin": "Sep-2022",
          "Memo": NaN
    }

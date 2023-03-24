@@ -1,8 +1,6 @@
 Referencia API
 ================
 
-Ver
-
 .. autoclass:: bcrpy.Marco
    :members: 
 

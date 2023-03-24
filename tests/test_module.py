@@ -22,10 +22,9 @@ def test_words():
     banco.wordsearch('economia')
     banco.wordsearch('economia',columnas =[0,1])
 
-
-    df= banco.metadata
-    for i in df.index :
-        print(i)
+    # df= banco.metadata
+    # for i in df.index :
+    #     print(i)
 
 
 def test_metadataLOAD():
@@ -47,14 +46,29 @@ def test_GETandplot():
 
     for name in df.columns:
         plt.figure(figsize=(9, 4))
-
         banco.plot(df[name],name,12)
-        # plt.grid(axis='y')
-        # plt.plot(df[name])
-        # plt.xticks(df[name].index, rotation = 60)
 
-        # plt.show()
     plt.show()
+
+
+def test_GETorden():
+    print('GET orden metadatos')
+    banco.codigos = ['PN01288PM','PN01289PM','PN00015MM']
+    banco.fechaini = '2019-1'
+    banco.fechafin = '2021-1'
+
+    banco.state_inputs()
+
+    df = banco.GET('GET.csv',True)
+    print(df)
+
+    banco.state_inputs()
+
+    print('GET orden de lista')
+
+    df =banco.GET('GET.csv',False)
+    print(df)
+
 
 def test_dfload():
 
