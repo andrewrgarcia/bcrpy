@@ -242,7 +242,7 @@ objeto.idioma = {}
             print('{}\t{}\t{}'.format(count,code_dict[value],value))
         # print(code_dict)
 
-    def GET(self,filename=False, orden=True):
+    def GET(self,filename=False, orden=True,tiempo="timestamp"):
         '''Extrae los datos del BCRPData selecionados por las previamente-declaradas variables `objeto.codigos`, `objeto.fechaini`, `objeto.fechafin`, `objeto.formato`, y `objeto.idioma`. 
 
         Parametros
@@ -251,6 +251,8 @@ objeto.idioma = {}
             Nombre para guardar los datos extraidos como un archivo .csv
         orden : bool
             Las columnas mantienen el orden declarados por el usuario en `objeto.codigos`  con opcion `orden=True` (predeterminado). Cuando `orden=False`, las columnas de los datos es la predeterminada por BCRPData. 
+        tiempo : str
+            Formato de las fechas en el pandas.Dataframe. Predeterminado: `timestamp` convierte fechas con el formato `str(MMM.YYYY)` (ejemplo Apr.2022) de BCRPData a la estructura de datos `Timestampt(YYYY-MM-01)` que es elastico para las graficas visuales y otra manipulacion de datos. Cualquier otro valor para esta variable mantiene el formato rigido `str(MMM.YYYY)` de BCRPData. 
         '''
 
         root = 'https://estadisticas.bcrp.gob.pe/estadisticas/series/api'
@@ -267,17 +269,17 @@ objeto.idioma = {}
         dict  = response.json()
 
         header = [k['name'] for k in dict['config']['series'] ]
-        df = pandas.DataFrame(columns=header) # Note that there are now row data inserted.
+        df = pandas.DataFrame(columns=header) # aqui todavia no se han insertado los datos en las filas
 
 
         for j in dict['periods']:
             # print(j['values'])
             df.loc[j['name']] = [float(ij) if ij!='n.d.' else None for ij in j['values'] ]
 
+        if tiempo =="timestamp":
+            df.index = pandas.to_datetime(df.index)     #convierte fechas a datetime (para facilitar visual acercar y alejar ticks de las graficas)
 
-        df.index = pandas.to_datetime(df.index)     #convert dates to datetime (this to zoom in and out the xlabel)
-
-        self.data = df              #store obtained data from BCRPData in self.data constructor var
+        self.data = df              #almacena datos extraidos de BCRPData en self.data 
 
         self.ordenar_columnas() if orden else self.ordenar_columnas(False)
 
