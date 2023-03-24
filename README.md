@@ -7,6 +7,13 @@ Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRP
 
 ![](docs/img/bcrp.png)
 
+## Vinculos 
+
+[Documentación en linea (readthedocs)](https://bcrpy.readthedocs.io/en/latest/) 
+
+[Manual bcrpy (pdf)](https://raw.githubusercontent.com/andrewrgarcia/bcrpy/main/bcrpy.pdf)
+
+[pip package index](https://pypi.org/project/bcrpy/) 
 
 # Instalacion
 
