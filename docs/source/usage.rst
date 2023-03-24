@@ -3,7 +3,7 @@ Uso
 
 .. _installation:
 
-Instalacion
+Instalación
 ------------
 
 En su sistema local (laptop o computadora) `bcrpy` puede ser instalada con el comando `pip install bcrpy`. Aun asi, se recomienda instalar `bcrpy` 
@@ -45,8 +45,10 @@ El siguiente ejemplo muestra el metodo ``wordsearch``, el cual usa un algoritmo 
 En el caso de abajo, usamos ``wordsearch`` para buscar la palabra "economia" en las columnas 0 y 1 (primera y segunda) de la base de datos del BCRP. 
 
 >>> banco.wordsearch('economia',columnas =[0,1])
-corriendo wordsearch: `economia` (fidelity = 0.65)* 
+corriendo wordsearch: `economia`
+cutoff = 0.65; columnas = [0, 1]
 por favor esperar...
+
 
 .. code-block:: ruby
 
@@ -73,11 +75,12 @@ por favor esperar...
 Podemos ver en la primera linea del output que la fidelidad a encontrar la palabra exacta esta predeterminada en 0.65 (65%). 
 
 Si quisieramos buscar una palabra en la base de datos que sea 100% igual (capitalizacion incluida), podemos aumentar el input 
-``fidelity`` a un valor de 1, como lo hacemos abajo con la palabra "centuria". Notemos que si no se especifica el input ``columns``, 
+``cutoff`` a un valor de 1, como lo hacemos abajo con la palabra "centuria". Notemos que si no se especifica el input ``columns``, 
 el metodo corre la busqueda de la palabra en todas las columnas.
 
->>> banco.wordsearch('centuria',fidelity=1)
-corriendo wordsearch: `centuria` (fidelity = 1)* 
+>>> banco.wordsearch('centuria',cutoff=1)
+corriendo wordsearch: `centuria`
+cutoff = 1; columnas = `all`(todas)
 por favor esperar...
 
 .. code-block:: ruby

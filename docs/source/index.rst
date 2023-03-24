@@ -35,7 +35,7 @@ Tambien podrias hacer clic en la imagen de abajo para un tutorial interactivo a 
    Este proyecto se encuentra bajo desarrollo activo.
 
 Contenido
---------
+-----------
 
 .. toctree::
 

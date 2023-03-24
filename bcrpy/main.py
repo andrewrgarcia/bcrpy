@@ -145,21 +145,23 @@ objeto.idioma = {}
 
         return dict
    
-    def wordsearch(self,keyword='economia',fidelity=0.65,columnas='all'):
+    def wordsearch(self,keyword='economia',cutoff=0.65,columnas='all'):
         '''Busqueda difusa de palabra clave (keyword) en metadatos de BCRPData. Regresa una tabla de 
-        datos en formato <Pandas DataFrame> de los metadatos asociados con aquella palabra. 
+        datos en formato pandas.DataFrame de los metadatos asociados con aquella palabra. 
 
         Parametros
         ----------
         keyword : str
             Palabra clave para reducir los metadatos
-        fidelity : float
-            Este es el Levenshtein similarity ratio (predeterminado=0.65). Un fidelity de 1.00 solo regresara metadatos que contienen palabras que coinciden con la palabra clave al 100%.
+        cutoff : float
+            Este es el Levenshtein similarity ratio (predeterminado=0.65). Un cutoff de 1.00 solo regresara metadatos que contienen palabras que coinciden con la palabra clave al 100%.
         columnas : str
             Indices de columnas de los metadatos seleccionados para correr el metodo. Predeterminado='all' corre el metodo en todas las columnas. 
         '''
 
-        print('corriendo wordsearch: `{}` (fidelity = {})* '.format(keyword,fidelity))
+        print('corriendo wordsearch: `{}`'.format(keyword))
+        print('cutoff =',cutoff, end='')
+        print('; columnas =',"`"+columnas+"`(todas)" if columnas=='all' else columnas)
         # print('*medido con Levenshtein similarity ratio')
         print('por favor esperar...\n')
 
@@ -174,9 +176,9 @@ objeto.idioma = {}
         'language processing; split titles into separate words and assess all with fuzzy string matching (True if similar word to keyword is found in titles/sentences)'
         loop_range = range(14) if columnas == 'all' else columnas
         for k in tqdm(loop_range):
-            # bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: (np.array([Levenshtein(word,keyword) for word in str(x).split()]) >= fidelity).any() )
+            # bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: (np.array([Levenshtein(word,keyword) for word in str(x).split()]) >= cutoff).any() )
             bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: True if \
-                                len(list(flatten([get_close_matches(keyword,[word],n=3,cutoff=fidelity) for word in str(x).split()]))) > 0 else False )
+                                len(list(flatten([get_close_matches(keyword,[word],n=3,cutoff=cutoff) for word in str(x).split()]))) > 0 else False )
             sleep(.1)
             print()
 
@@ -291,7 +293,7 @@ objeto.idioma = {}
 
         Parametros
         ----------
-        data : <Pandas DataFrame>
+        data : pandas.DataFrame
             Data x-y extraida de BCRPData, x es fecha y es cantidad. 
         title : str
             Titulo para grafica
