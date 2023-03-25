@@ -41,3 +41,13 @@ Contenido
 
    usage
    api
+
+
+Todos los vinculos
+^^^^^^^^^^^^^^^^^^^^
+
+`MANUAL BCRPY (en formato .pdf) <https://raw.githubusercontent.com/andrewrgarcia/bcrpy/main/bcrpy.pdf>`_
+
+`GitHub <https://github.com/andrewrgarcia/bcrpy>`_
+
+`PyPI (pip package index) <https://pypi.org/project/bcrpy>`_
