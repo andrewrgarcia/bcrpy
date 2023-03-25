@@ -38,5 +38,6 @@ sphinx:
 python:
   # Install our python package before building the docs
   install:
+    - requirements: requirements.in
     - method: pip
       path: .
