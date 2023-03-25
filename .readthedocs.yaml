@@ -31,8 +31,12 @@ sphinx:
 #    - pdf
 
 # Optionally declare the Python requirements required to build your docs
+# python:
+#    install:
+#    - requirements: requirements.in
+
 python:
-   install:
-   - method: pip
-   - path: .
-   - requirements: requirements.in
+  # Install our python package before building the docs
+  install:
+    - method: pip
+      path: .
