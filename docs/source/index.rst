@@ -1,7 +1,7 @@
 Bienvenido a la documentación de bcrpy!
 =========================================
 
-.. image:: ../img/bcrpy.png
+.. image:: ../img/icon_bcrpy.png
   :width: 150
   :alt: bcrpy logo
   :target: https://github.com/andrewrgarcia/bcrpy
@@ -12,7 +12,7 @@ Este modulo de Python es un cliente API para la extraccion, consulta y analisis 
 `Banco Central de Reserva del Peru (BCRP) <https://www.bcrp.gob.pe/>`_ el cual trabaja como un wrapper de la 
 `API para Desarrolladores del BCRP <https://estadisticas.bcrp.gob.pe/estadisticas/series/ayuda/api>`_
 
-.. image:: ../img/bcrp.png
+.. image:: ../img/icon_bcrp.png
   :width: 300
   :alt: BCRP logo
   :target: https://www.bcrp.gob.pe/

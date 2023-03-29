@@ -10,7 +10,7 @@ Metodos globales
 
 .. autoclass:: bcrpy.dfload
 
-Metodos locales (dentro de la class `Marco`)
+Metodos locales a la clase ``bcrpy.Marco``
 ----------------------------------------------
 
 .. autoclass:: bcrpy.Marco

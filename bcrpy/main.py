@@ -166,8 +166,8 @@ objeto.idioma = {}
         print('por favor esperar...\n')
 
         INDICES = []
-        df=  self.get_metadata() if len(self.metadata) == 0 else self.metadata
-
+        self.get_metadata() if len(self.metadata) == 0 else None
+        df= self.metadata
 
         'placeholder dataframes (so that nothing gets overwritten)'
         new_df = df.copy()
@@ -204,7 +204,6 @@ objeto.idioma = {}
         '''
 
         self.get_metadata() if len(self.metadata) == 0 else None
-    
         df= self.metadata
 
         indices = [ df.index[df.iloc[:,0] == k].tolist()[0] for k in self.codigos ]

@@ -1,39 +1,44 @@
 import pickle 
 import pandas
 
-def dfsave(df,filename, formato="python"):
+def dfsave(df,filename):
     '''Guarda la informacion de datos almacenados y procesados por Python en un archivo 
     
     Parametros
     ----------
     filename: str
-        Nombre del archivo para guardar
-    formato: str
-        El formato del archivo. Predeterminado="python" : archivo se guarda en formato pickle. Si el valor de formato no es "python" se guarda en formato .csv
+        Nombre del archivo para guardar. Si el nombre termina con el sufijo ".csv", se guarda como archivo CSV, si termina con ".md", se guarda como archivo Markdown. En otro caso, el archivo se guarda en formato de Python ['pickle']
     '''
-    if formato=="python":
-        # '''Saves a `df` Pandas DataFrame with `filename` name using the pickle module'''
-        return pickle.dump(df,open(filename,'wb'))
-    else:
+
+    if filename[-3:] == 'csv':
         # '''Saves a `df` Pandas DataFrame with `filename` name as a csv file'''
         df.to_csv(filename)
 
-def dfload(filename, formato="python"):
+    if filename[-3:] == '.md':
+        with open(filename, 'w') as f:
+            f.write(df.to_markdown())
+
+    else:
+        # '''Saves a `df` Pandas DataFrame with `filename` name using the pickle module'''
+        return pickle.dump(df,open(filename,'wb'))
+
+
+def dfload(filename):
     '''Carga la informacion de datos almacenados en un archivo a Python
 
     Parametros
     ----------
     filename: str
-        Nombre del archivo 
-    formato: str
-        El formato del archivo. Predeterminado="python" : archivo en formato pickle. Si el valor de formato no es "python" el formato es .csv
+        Nombre del archivo. Si el nombre termina con el sufijo ".csv", se carga el archivo CSV. En otro caso, el archivo se carga con el modulo de Python ['pickle']
     '''
-    if formato=="python":
-        # '''Loads a pickled Pandas DataFrame with `filename` name'''
-        return pickle.load( open(filename, "rb" ),encoding='latin1')
-    else:
+
+    if filename[-3:] == 'csv':
         # '''Loads a csv-formatted Pandas DataFrame saved with `filename` name'''
         return pandas.read_csv(filename, delimiter=',')
+
+    else:
+        # '''Loads a pickled Pandas DataFrame with `filename` name'''
+        return pickle.load( open(filename, "rb" ),encoding='latin1')
 
 def minDis(s1, s2, n, m, dp) :
     '''This is a memoized version of recursion i.e. Top-Down DP: to find minimum number

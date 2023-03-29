@@ -20,8 +20,8 @@ dentro de un `ambiente virtual virtualenv <https://docs.python.org/es/3/library/
 (tambien conocido como `*Object Oriented Programming (OOP)* <https://en.wikipedia.org/wiki/Object-oriented_programming>`_) 
 lo cual se reduce a que objetos pueden ser usados a almacenar metodos (funciones), datos, y su manejo de aquellos. 
 
-Extraccion de metadatos y busqueda de palabras en aquellos
--------------------------------------------------------------
+Extraccion de metadatos
+-------------------------------
 
 En el caso de abajo, vemos como el objeto definido con la variable ``banco`` se usa para extraer los metadatos del BCRPData con el metodo ``get_metadata``,
 el cual la almacena como un ``Pandas DataFrame`` dentro de su variable constructora ``metadata``
@@ -40,15 +40,18 @@ el cual la almacena como un ``Pandas DataFrame`` dentro de su variable construct
 
 Arriba vemos que los metadatos almacenados en ``banco.metadata`` contienen 14,858 filas con 14 columnas. 
 
-El siguiente ejemplo muestra el metodo ``wordsearch``, el cual usa un algoritmo de 
-`*fuzzy string matching* <https://www.ibm.com/docs/es/psfa/7.1.0?topic=functions-fuzzy-string-search>`_ para encontrar palabras parecidas a la palabra que esta siendo buscada. 
+
+
+Busqueda de palabras en metadatos 
+-------------------------------------------------------------
+
+El siguiente ejemplo muestra el metodo ``wordsearch``, el cual busca las filas de los metadatos en las cuales se encuentren palabras parecidas a la "palabra clave" que esta siendo buscada. 
 En el caso de abajo, usamos ``wordsearch`` para buscar la palabra "economia" en las columnas 0 y 1 (primera y segunda) de la base de datos del BCRP. 
 
 >>> banco.wordsearch('economia',columnas =[0,1])
 corriendo wordsearch: `economia`
 cutoff = 0.65; columnas = [0, 1]
 por favor esperar...
-
 
 .. code-block:: ruby
 
@@ -72,53 +75,15 @@ por favor esperar...
 
    [476 rows x 14 columns]
 
-Podemos ver en la primera linea del output que la fidelidad a encontrar la palabra exacta esta predeterminada en 0.65 (65%). 
+Podemos ver en la primera linea del output que la precision a encontrar la palabra exacta esta predeterminada en 0.65 (65%). 
 
 Si quisieramos buscar una palabra en la base de datos que sea 100% igual (capitalizacion incluida), podemos aumentar el input 
-``cutoff`` a un valor de 1, como lo hacemos abajo con la palabra "centuria". Notemos que si no se especifica el input ``columns``, 
-el metodo corre la busqueda de la palabra en todas las columnas.
-
->>> banco.wordsearch('centuria',cutoff=1)
-corriendo wordsearch: `centuria`
-cutoff = 1; columnas = `all`(todas)
-por favor esperar...
-
-.. code-block:: ruby
-
-    0%|                                                                | 0/14 [00:00<?, ?it/s]
-    7%||||||                                                           | 1/14 [00:00<00:02,  4.36it/s]
-   14%||||||||||                                                       | 2/14 [00:00<00:04,  2.45it/s]
-   21%|||||||||||||||                                                  | 3/14 [00:02<00:09,  1.13it/s]
-   29%|||||||||||||||||||                                              | 4/14 [00:02<00:08,  1.22it/s]
-   36%||||||||||||||||||||||||                                         | 5/14 [00:03<00:06,  1.42it/s]
-   43%|||||||||||||||||||||||||||||                                    | 6/14 [00:03<00:04,  1.83it/s]
-   50%|||||||||||||||||||||||||||||||||                                | 7/14 [00:03<00:03,  2.24it/s]
-   57%||||||||||||||||||||||||||||||||||||||                           | 8/14 [00:04<00:03,  1.84it/s]
-   64%|||||||||||||||||||||||||||||||||||||||||||                      | 9/14 [00:05<00:03,  1.61it/s]
-   71%|||||||||||||||||||||||||||||||||||||||||||||||                  | 10/14 [00:05<00:02,  1.96it/s]
-   79%|||||||||||||||||||||||||||||||||||||||||||||||||||              | 11/14 [00:06<00:01,  2.22it/s]
-   86%||||||||||||||||||||||||||||||||||||||||||||||||||||||||         | 12/14 [00:06<00:00,  2.44it/s]
-   93%||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||     | 13/14 [00:06<00:00,  2.73it/s]
-   100%||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 14/14 [00:06<00:00,  2.03it/s]
+``cutoff`` a un valor de 1. 
 
 
-         Código de serie              Categoría de serie  ... Memo Unnamed: 13
-   8437       CD11605DA  Primera centuria independiente  ...  NaN         NaN
-   8438       CD11606DA  Primera centuria independiente  ...  NaN         NaN
-   8439       CD11607DA  Primera centuria independiente  ...  NaN         NaN
-   8440       CD11608DA  Primera centuria independiente  ...  NaN         NaN
-   8441       CD11609DA  Primera centuria independiente  ...  NaN         NaN
-   ...              ...                             ...  ...  ...         ...
-   9028       CD12207DA  Primera centuria independiente  ...  NaN         NaN
-   9029       CD12208DA  Primera centuria independiente  ...  NaN         NaN
-   9030       CD12209DA  Primera centuria independiente  ...  NaN         NaN
-   9031       CD12210DA  Primera centuria independiente  ...  NaN         NaN
-   9032       CD12211DA  Primera centuria independiente  ...  NaN         NaN
 
-   [596 rows x 14 columns]
-
-Consultas con codigos de serie
----------------------------------
+Consultas de codigos de serie
+------------------------------------------------------
 
 Tambien podemos hacer consultas individuales de un codigo de serie con el metodo ``query``, para que nos den la informacion mas organizada en una estructura de mapa (json). 
 Abajo, hacemos dos consultas con dos codigos de serie de la database: 
@@ -174,8 +139,49 @@ Abajo, hacemos dos consultas con dos codigos de serie de la database:
    }
 
 
+
+Ejemplo : Extraer todos los metadatos de series economicas con frecuencias mensuales
+-------------------------------------------------------------------------------------------------------------------
+
+De los metadatos anteriores, se puede observar que la frecuencia de las series económicas está definida en la sexta columna.
+En este caso, la frecuencia es anual para ambos metadatos. Sin embargo, si se desea buscar metadatos que tengan una frecuencia 
+mensual, es posible utilizar la función ``wordsearch`` para buscar registros que contengan la palabra "Mensual" en la sexta columna, con un ``cutoff=1`` 
+(lo que indica una precisión de palabra restringida al 100%) en la columna con índice 5. 
+Cabe destacar que, en Python, los índices de las columnas comienzan a contarse desde 0 en lugar de 1:
+
+>>> df_mensuales = banco.wordsearch("Mensual",cutoff=1,columnas=[5])
+corriendo wordsearch: `Mensual`
+cutoff = 1; columnas = [5]
+por favor esperar...
+
+
+.. code-block:: ruby
+
+   0%|                                                           | 0/1 [00:00<?, ?it/s]
+   100%||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 1/1 [00:00<00:00,  3.11it/s]
+
+
+      Código de serie                Categoría de serie                                     Grupo de serie  ... Fecha de fin Memo Unnamed: 13
+   0           PN00001MM  Sociedades creadoras de depósito  Cuentas monetarias de las sociedades creadoras...  ...     Sep-2022  NaN         NaN
+   1           PN00002MM  Sociedades creadoras de depósito  Cuentas monetarias de las sociedades creadoras...  ...     Sep-2022  NaN         NaN
+   2           PN00003MM  Sociedades creadoras de depósito  Cuentas monetarias de las sociedades creadoras...  ...     Sep-2022  NaN         NaN
+   3           PN00004MM  Sociedades creadoras de depósito  Cuentas monetarias de las sociedades creadoras...  ...     Sep-2022  NaN         NaN
+   4           PN00005MM  Sociedades creadoras de depósito  Cuentas monetarias de las sociedades creadoras...  ...     Sep-2022  NaN         NaN
+   ...               ...                               ...                                                ...  ...          ...  ...         ...
+   14853       PD39791AM        Expectativas Empresariales             Expectativas empresariales sectoriales  ...     Sep-2022  NaN         NaN
+   14854       PD39792AM        Expectativas Empresariales             Expectativas empresariales sectoriales  ...     Sep-2022  NaN         NaN
+   14855       PD39793AM        Expectativas Empresariales             Expectativas empresariales sectoriales  ...     Sep-2022  NaN         NaN
+   14856       PD39794AM        Expectativas Empresariales             Expectativas empresariales sectoriales  ...     Sep-2022  NaN         NaN
+   14857       PD39795AM        Expectativas Empresariales             Expectativas empresariales sectoriales  ...     Sep-2022  NaN         NaN
+
+   [6641 rows x 14 columns]
+
+
+El código anterior almacena los metadatos de todas las series económicas con frecuencia mensual encontradas mediante la función 
+``wordsearch`` en una ``pandas.DataFrame`` con el nombre "df_mensuales". Se observa que los metadatos filtrados corresponden a 6641 códigos de los más de 14,000 presentes en BCRPData.
+
 Facil extraccion de series economicas y generacion de graficas 
-----------------------------------------------------------------
+-------------------------------------------------------------------
 
 El ingenio del *Object Oriented Programming (OOP)* se encuentra en que los inputs del objeto (en este caso, el objeto definido como ``banco``) pueden ser modificados y sus metodos (funciones) pueden funcionar con aquellos cambios. 
 
