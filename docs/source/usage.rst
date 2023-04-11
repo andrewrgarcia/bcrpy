@@ -185,7 +185,7 @@ Facil extraccion de series economicas y generacion de graficas
 
 El ingenio del *Object Oriented Programming (OOP)* se encuentra en que los inputs del objeto (en este caso, el objeto definido como ``banco``) pueden ser modificados y sus metodos (funciones) pueden funcionar con aquellos cambios. 
 
-Abajo se definen los codigos de serie y el rango de fechas para despues imprimirlos con el metodo ``state_inputs()`` y extraear los datos con aquellas especificaciones del BCRPData con el metodo ``GET()``, el cual regresa aquellos datos como un ``Pandas DataFrame``. 
+Abajo se definen los codigos de serie y el rango de fechas para despues imprimirlos con el metodo ``parametros()`` y extraear los datos con aquellas especificaciones del BCRPData con el metodo ``GET()``, el cual regresa aquellos datos como un ``Pandas DataFrame``. 
 
 Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cual se usa para hacer graficos con el metodo ``plot()`` del objeto definido como ``banco``. 
 
@@ -198,7 +198,7 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
    banco.fechaini = '2011-1'
    banco.fechafin = '2021-1'
 
-   banco.state_inputs()			# mostrar el estado actual de los inputs escogidos 
+   banco.parametros()			# mostrar el estado actual de los inputs escogidos 
 
    # obtener informacion de los inputs seleccionados (arriba) en el mismo orden  
    df = banco.GET()	

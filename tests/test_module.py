@@ -37,7 +37,7 @@ def test_GETandplot():
     banco.fechaini = '2019-1'
     banco.fechafin = '2021-1'
 
-    banco.state_inputs()
+    banco.parametros()
 
     df = banco.GET('GET.csv')
 
@@ -57,12 +57,12 @@ def test_GETorden():
     banco.fechaini = '2019-1'
     banco.fechafin = '2021-1'
 
-    banco.state_inputs()
+    banco.parametros()
 
     df = banco.GET('GET.csv',True)
     print(df)
 
-    banco.state_inputs()
+    banco.parametros()
 
     print('GET orden de lista')
 

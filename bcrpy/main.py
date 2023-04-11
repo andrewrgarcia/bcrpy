@@ -23,7 +23,7 @@ class Marco:
         metadata: pandas.DataFrame
             Los metadatos de las series estadísticas del BRCPData, los cuales pueden ser reducidos con el metodo ref_metadata de esta `class`. 
         data: pandas.DataFrame
-            Los datos extraidos del BRCPData de acuerdo a la informacion declarada en las variables constructoras (vea metodo `state_inputs()`) con el metodo `GET()` de esta clase.  
+            Los datos extraidos del BRCPData de acuerdo a la informacion declarada en las variables constructoras (vea metodo `parametros()`) con el metodo `GET()` de esta clase.  
         codigos : list(str)
             lista de codigos de series en interes para usar con los metodos de esta `class`. 
         formato : str
@@ -43,7 +43,7 @@ class Marco:
         self.fechafin = '2016-9'
         self.idioma = 'ing'
 
-    def state_inputs(self):
+    def parametros(self):
         '''Declara el estado actual de todas las variables constructoras de la clase Marco. 
         '''
 
