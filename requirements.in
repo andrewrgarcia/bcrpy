@@ -3,4 +3,6 @@ pandas
 tqdm
 sphinx
 iteration_utilities
+termcolor
+colorama
 bcrpy

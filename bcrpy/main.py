@@ -13,6 +13,9 @@ from time import sleep
 import matplotlib.pyplot as plt 
 from bcrpy.anexo import Levenshtein
 
+from termcolor import colored, cprint
+from colorama import just_fix_windows_console
+just_fix_windows_console()
 
 class Marco:
     def __init__(self):
@@ -46,8 +49,11 @@ class Marco:
     def parametros(self):
         '''Declara el estado actual de todas las variables constructoras de la clase Marco. 
         '''
+        
+        decoration = colored("Estado actual de parametros constructores del objeto:", "green")
 
-        print('''corriendo estado actual de todas las variables constructoras...\n
+
+        text = '''
 objeto.metadata = {}
 objeto.codigos = {}
 objeto.formato = {}
@@ -59,7 +65,10 @@ objeto.idioma = {}
         self.formato,
         self.fechaini, 
         self.fechafin,
-        self.idioma))
+        self.idioma)
+
+        print(decoration)
+        print(text)
 
 
     def get_metadata(self, filename='metadata.csv'): 
@@ -112,11 +121,15 @@ objeto.idioma = {}
         self.get_metadata() if len(self.metadata) == 0 else None
         df = self.metadata
 
-
-        print('corriendo query para {}...\n'.format(codigo))
+        # print('corriendo query para {}...\n'.format(codigo))
+        print(colored('corriendo query para {}...\n'.format(codigo), "green"))
 
         index = df.index[df.iloc[:,0] == codigo].tolist()
-        print('{} es indice {} en metadatos'.format(codigo, index[0]))
+        # print('{} es indice {} en metadatos'.format(codigo, index[0]))
+        # print(colored(codigo, "blue",attrs=["bold"]),end=" ")
+        cprint(codigo, "white", "on_green",end=" ")
+
+        print('es indice {} en metadatos'.format(index[0]))
 
         dict = self.metadata.loc[index].to_dict()
         for i in dict.keys():
@@ -131,7 +144,6 @@ objeto.idioma = {}
 
         self.get_metadata() if len(self.metadata) == 0 else None
         df = self.metadata
-
 
         # print('corriendo query para {}...\n'.format(codigo))
 
@@ -156,14 +168,14 @@ objeto.idioma = {}
         cutoff : float
             Este es el Levenshtein similarity ratio (predeterminado=0.65). Un cutoff de 1.00 solo regresara metadatos que contienen palabras que coinciden con la palabra clave al 100%.
         columnas : str
-            Indices de columnas de los metadatos seleccionados para correr el metodo. Predeterminado='all' corre el metodo en todas las columnas. 
+            Indices de columnas de los metadatos seleccionados para correr el metodo. Predeterminado='all' corre el metodo en todas las columnas. Seleccion por indice: e.g. [0,2,4] busca en la primera, tercera, y quinta columna. 
         '''
 
-        print('corriendo wordsearch: `{}`'.format(keyword))
-        print('cutoff =',cutoff, end='')
+        print('\nBusqueda difusa de palabra: `{}`'.format(keyword))
+        print('cutoff (tolerancia) =',cutoff, end='')
         print('; columnas =',"`"+columnas+"`(todas)" if columnas=='all' else columnas)
         # print('*medido con Levenshtein similarity ratio')
-        print('por favor esperar...\n')
+        print(colored('corriendo wordsearch...', "green", attrs=["blink"]))
 
         INDICES = []
         self.get_metadata() if len(self.metadata) == 0 else None
@@ -262,7 +274,10 @@ objeto.idioma = {}
 
         url = "{}/{}/{}/{}/{}".format(root,code_series,format,period,language)
 
-        'https://www.geeksforgeeks.org/response-json-python-requests/'
+        print('URL:')
+        print(url)
+
+        print(colored('Obteniendo información con la URL de arriba usando requests.get. Por favor espere...',"green", attrs=["blink"]))
         response = requests.get(url)
 
         dict  = response.json()

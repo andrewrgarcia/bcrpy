@@ -1,8 +1,12 @@
 script.py
+ejemplo.py
 .metals
 venv
 __pycache__
 *.csv
+
+data
+metadatos
 
 docs/build
 
