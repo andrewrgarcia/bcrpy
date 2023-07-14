@@ -7,7 +7,7 @@ Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRP
 
 
 
-[![](bcrpget.png)](https://bcrpget.vercel.app/)
+[![](docs/img/bcrp_poly_logo.png)](https://bcrpy.vercel.app/)
 
 
 ## Vinculos 
