@@ -1,7 +1,7 @@
 Bienvenido a la documentación de bcrpy!
 =========================================
 
-.. image:: ../img/icon_bcrpy.png
+.. image:: ../img/bcrp_poly_logo.png
   :width: 150
   :alt: bcrpy logo
   :target: https://github.com/andrewrgarcia/bcrpy
