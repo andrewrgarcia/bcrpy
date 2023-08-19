@@ -4,7 +4,7 @@ Bienvenido a la documentación de bcrpy!
 .. image:: ../img/bcrp_poly_logo.png
   :width: 150
   :alt: bcrpy logo
-  :target: https://github.com/andrewrgarcia/bcrpy
+  :target: https://bcrpy.vercel.app/
 
 
 Este modulo de Python es un cliente API para la extraccion, consulta y analisis de la base de datos 

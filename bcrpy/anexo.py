@@ -1,7 +1,7 @@
 import pickle 
 import pandas
 
-def dfsave(df,filename):
+def save_dataframe(df,filename):
     '''Guarda la informacion de datos almacenados y procesados por Python en un archivo 
     
     Parametros
@@ -11,7 +11,6 @@ def dfsave(df,filename):
     '''
 
     if filename[-3:] == 'csv':
-        # '''Saves a `df` Pandas DataFrame with `filename` name as a csv file'''
         df.to_csv(filename)
 
     if filename[-3:] == '.md':
@@ -19,11 +18,10 @@ def dfsave(df,filename):
             f.write(df.to_markdown())
 
     else:
-        # '''Saves a `df` Pandas DataFrame with `filename` name using the pickle module'''
         return pickle.dump(df,open(filename,'wb'))
 
 
-def dfload(filename):
+def load_dataframe(filename):
     '''Carga la informacion de datos almacenados en un archivo a Python
 
     Parametros
@@ -33,14 +31,12 @@ def dfload(filename):
     '''
 
     if filename[-3:] == 'csv':
-        # '''Loads a csv-formatted Pandas DataFrame saved with `filename` name'''
         return pandas.read_csv(filename, delimiter=',')
 
     else:
-        # '''Loads a pickled Pandas DataFrame with `filename` name'''
         return pickle.load( open(filename, "rb" ),encoding='latin1')
 
-def minDis(s1, s2, n, m, dp) :
+def edit_distance(s1, s2, n, m, dp) :
     '''This is a memoized version of recursion i.e. Top-Down DP: to find minimum number
     operations to convert str1 to str2
     external credit: # This code is contributed by divyesh072019.
@@ -62,7 +58,7 @@ def minDis(s1, s2, n, m, dp) :
     # recursive function for n-1, m-1   
     if(s1[n - 1] == s2[m - 1]) :          
         if(dp[n - 1][m - 1] == -1) :
-            dp[n][m] = minDis(s1, s2, n - 1, m - 1, dp)
+            dp[n][m] = edit_distance(s1, s2, n - 1, m - 1, dp)
             return dp[n][m]                  
         else :
             dp[n][m] = dp[n - 1][m - 1]
@@ -74,22 +70,22 @@ def minDis(s1, s2, n, m, dp) :
         if(dp[n - 1][m] != -1) :  
             m1 = dp[n - 1][m]     
         else :
-            m1 = minDis(s1, s2, n - 1, m, dp)
+            m1 = edit_distance(s1, s2, n - 1, m, dp)
                 
         if(dp[n][m - 1] != -1) :               
             m2 = dp[n][m - 1]           
         else :
-            m2 = minDis(s1, s2, n, m - 1, dp)  
+            m2 = edit_distance(s1, s2, n, m - 1, dp)  
         if(dp[n - 1][m - 1] != -1) :   
             m3 = dp[n - 1][m - 1]   
         else :
-            m3 = minDis(s1, s2, n - 1, m - 1, dp)
+            m3 = edit_distance(s1, s2, n - 1, m - 1, dp)
         
         dp[n][m] = 1 + min(m1, min(m2, m3))
         return dp[n][m]
      
 
-def Levenshtein(str1, str2):
+def levenshtein_ratio(str1, str2):
     '''this is the Levenshtein similarity ratio 
     https://www.datacamp.com/tutorial/fuzzy-string-python
     '''
@@ -98,7 +94,7 @@ def Levenshtein(str1, str2):
     m = len(str2)
     dp = [[-1 for i in range(m + 1)] for j in range(n + 1)]
                 
-    lev=minDis(str1, str2, n, m, dp)
+    lev=edit_distance(str1, str2, n, m, dp)
 
     return  ((n + m) - lev) / (n+m)
 

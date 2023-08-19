@@ -6,9 +6,9 @@ Para los detalles de cualquier metodo de ``bcrpy``, se puede hacer una busqueda 
 
 Metodos globales
 -------------------
-.. autoclass:: bcrpy.dfsave
+.. autoclass:: bcrpy.save_dataframe
 
-.. autoclass:: bcrpy.dfload
+.. autoclass:: bcrpy.load_dataframe
 
 Metodos locales a la clase ``bcrpy.Marco``
 ----------------------------------------------

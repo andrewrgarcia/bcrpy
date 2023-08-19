@@ -9,7 +9,7 @@ def test_queries():
     banco.query('PN00015MM')
 
     banco.codigos = ['PN01288PM','PN01289PM']
-    banco.ref_metadata('metadata_refined.csv')
+    banco.refine_metadata('metadata_refined.csv')
 
 
 def test_metadataGET():
@@ -41,7 +41,7 @@ def test_GETandplot():
 
     df = banco.GET('GET.csv')
 
-    bcrpy.dfsave(df,"mydf.p")
+    bcrpy.save_dataframe(df,"mydf.p")
 
 
     for name in df.columns:
@@ -70,7 +70,7 @@ def test_GETorden():
     print(df)
 
 
-def test_dfload():
+def test_load_dataframe():
 
-    df = bcrpy.dfload("mydf.p")
+    df = bcrpy.load_dataframe("mydf.p")
     print(df)

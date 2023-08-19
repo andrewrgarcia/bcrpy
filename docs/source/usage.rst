@@ -40,8 +40,6 @@ el cual la almacena como un ``Pandas DataFrame`` dentro de su variable construct
 
 Arriba vemos que los metadatos almacenados en ``banco.metadata`` contienen 14,858 filas con 14 columnas. 
 
-
-
 Busqueda de palabras en metadatos 
 -------------------------------------------------------------
 

@@ -11,7 +11,7 @@ from tqdm import tqdm
 from time import sleep
 
 import matplotlib.pyplot as plt 
-from bcrpy.anexo import Levenshtein
+# from bcrpy.anexo import levenshtein_ratio
 
 from termcolor import colored, cprint
 from colorama import just_fix_windows_console
@@ -24,7 +24,7 @@ class Marco:
         Parametros
         ----------
         metadata: pandas.DataFrame
-            Los metadatos de las series estadísticas del BRCPData, los cuales pueden ser reducidos con el metodo ref_metadata de esta `class`. 
+            Los metadatos de las series estadísticas del BRCPData, los cuales pueden ser reducidos con el metodo refine_metadata de esta `class`. 
         data: pandas.DataFrame
             Los datos extraidos del BRCPData de acuerdo a la informacion declarada en las variables constructoras (vea metodo `parametros()`) con el metodo `GET()` de esta clase.  
         codigos : list(str)
@@ -140,7 +140,7 @@ objeto.idioma = {}
         print(jsondata)
         return jsondata
     
-    def querydict(self,codigo='PD39793AM'):
+    def query_dict(self,codigo='PD39793AM'):
 
         self.get_metadata() if len(self.metadata) == 0 else None
         df = self.metadata
@@ -174,7 +174,6 @@ objeto.idioma = {}
         print('\nBusqueda difusa de palabra: `{}`'.format(keyword))
         print('cutoff (tolerancia) =',cutoff, end='')
         print('; columnas =',"`"+columnas+"`(todas)" if columnas=='all' else columnas)
-        # print('*medido con Levenshtein similarity ratio')
         print(colored('corriendo wordsearch...', "green", attrs=["blink"]))
 
         INDICES = []
@@ -206,7 +205,7 @@ objeto.idioma = {}
         print('\n\n',new_df)
         return new_df
 
-    def ref_metadata(self,filename=False):
+    def refine_metadata(self,filename=False):
         '''Reduce los metadatos en self.metadata a aquellos perteneciendo a los codigos de serie declarados en self.codigos. 
 
         Parametros
@@ -237,7 +236,7 @@ objeto.idioma = {}
         self.get_metadata() if len(self.metadata) == 0 else None
         df = self.metadata
 
-        user_order = [ '{} - {}'.format(self.querydict(codigo)["Grupo de serie"],self.querydict(codigo)["Nombre de serie"]) for codigo in self.codigos]
+        user_order = [ '{} - {}'.format(self.query_dict(codigo)["Grupo de serie"],self.query_dict(codigo)["Nombre de serie"]) for codigo in self.codigos]
         code_dict = {user_order[i] : self.codigos[i]  for i in range(len(self.codigos))}
         
         if hacer:
