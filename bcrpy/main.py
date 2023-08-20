@@ -6,6 +6,7 @@ import pandas
 
 from difflib import get_close_matches
 from iteration_utilities import flatten
+from itertools import chain
 
 from tqdm import tqdm
 from time import sleep
@@ -158,48 +159,59 @@ objeto.idioma = {}
         return dict
    
     def wordsearch(self,keyword='economia',cutoff=0.65,columnas='all'):
-        '''Busqueda difusa de palabra clave (keyword) en metadatos de BCRPData. Regresa una tabla de 
-        datos en formato pandas.DataFrame de los metadatos asociados con aquella palabra. 
+        '''Realiza una búsqueda difusa de palabras clave (keyword) en los metadatos de BCRPData. Regresa una tabla de 
+        datos en formato `pandas.DataFrame` de los metadatos asociados con aquella palabra. 
 
         Parametros
         ----------
         keyword : str
             Palabra clave para reducir los metadatos
         cutoff : float
-            Este es el Levenshtein similarity ratio (predeterminado=0.65). Un cutoff de 1.00 solo regresara metadatos que contienen palabras que coinciden con la palabra clave al 100%.
+            Este es la metrica de similitud de palabras (predeterminado=0.65). Un cutoff de 1.00 solo regresara metadatos que contienen palabras que coinciden con la palabra clave al 100%.
         columnas : str
             Indices de columnas de los metadatos seleccionados para correr el metodo. Predeterminado='all' corre el metodo en todas las columnas. Seleccion por indice: e.g. [0,2,4] busca en la primera, tercera, y quinta columna. 
         '''
-
-        print('\nBusqueda difusa de palabra: `{}`'.format(keyword))
-        print('cutoff (tolerancia) =',cutoff, end='')
-        print('; columnas =',"`"+columnas+"`(todas)" if columnas=='all' else columnas)
+        
+        print(f'\nBusqueda difusa de palabra: `{keyword}`')
+        print(f'cutoff (tolerancia) = {cutoff}', end='')
+        print('; columnas =', "`"+columnas+"`(todas)" if columnas=='all' else columnas)
         print(colored('corriendo wordsearch...', "green", attrs=["blink"]))
 
         INDICES = []
         self.get_metadata() if len(self.metadata) == 0 else None
         df= self.metadata
 
-        'placeholder dataframes (so that nothing gets overwritten)'
+        # placeholder dataframes (so that nothing gets overwritten)
         new_df = df.copy()
         bool_df = df.copy()
 
-        'language processing; split titles into separate words and assess all with fuzzy string matching (True if similar word to keyword is found in titles/sentences)'
+        ## CLOSED-FORM LANGUAGE PROCESSING
+        def contains_similar_keyword(text, keyword, cutoff=0.8, ):
+            '''Split titles into separate words and assess all with fuzzy string matching 
+            (True if similar word to keyword is found in titles/sentences)'''
+            words = text.split()
+            similar_matches = list(chain.from_iterable(
+                get_close_matches(keyword, [word], n=1, cutoff=cutoff) for word in words
+            ))
+            
+            return bool(similar_matches)
+        
+        # Do above for all columns in BCRP metadata
         loop_range = range(14) if columnas == 'all' else columnas
         for k in tqdm(loop_range):
-            # bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: (np.array([Levenshtein(word,keyword) for word in str(x).split()]) >= cutoff).any() )
-            bool_df.iloc[:,k] = bool_df.iloc[:,k].apply(lambda x: True if \
-                                len(list(flatten([get_close_matches(keyword,[word],n=3,cutoff=cutoff) for word in str(x).split()]))) > 0 else False )
-            sleep(.1)
+            bool_df.iloc[:, k] = bool_df.iloc[:, k].apply(
+                lambda x: contains_similar_keyword(str(x), keyword, cutoff)
+            )
+            sleep(0.001)
             print()
 
-        'set remaining columns not matched to False'
+        # Set remaining columns not matched to False
         False_cols = [i for i in range(14)]
         [False_cols.remove(j) for j in loop_range]
         for col in False_cols:
             bool_df.iloc[:,col].values[:] = False
 
-        'keep dataframe rows which evaluate ANY of its columns to True'
+        # Keep dataframe rows which evaluate ANY of its columns to True
         new_df = new_df[bool_df.any(axis=1)]
 
         print('\n\n',new_df)
