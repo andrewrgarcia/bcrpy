@@ -9,4 +9,4 @@ data
 metadatos
 
 docs/build
-
+llm_models/*.bin
