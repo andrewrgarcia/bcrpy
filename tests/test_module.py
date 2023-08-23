@@ -39,7 +39,7 @@ def test_GETandplot():
 
     banco.parametros()
 
-    df = banco.GET('GET.csv')
+    df = banco.GET()
 
     bcrpy.save_dataframe(df,"mydf.p")
 
@@ -59,15 +59,28 @@ def test_GETorden():
 
     banco.parametros()
 
-    df = banco.GET('GET.csv',True)
+    df = banco.GET(order=True)
     print(df)
 
     banco.parametros()
 
     print('GET orden de lista')
 
-    df =banco.GET('GET.csv',False)
+    df =banco.GET(order=False)
     print(df)
+
+
+def test_GETreset():
+    print('GET reset (forget=True) metadatos')
+    banco.codigos = ['PN01288PM','PN01289PM','PN00015MM']
+    banco.fechaini = '2019-1'
+    banco.fechafin = '2021-1'
+
+    banco.parametros()
+
+    df = banco.GET(forget=True)
+    print(df)
+
 
 
 def test_load_dataframe():

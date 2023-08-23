@@ -1,5 +1,7 @@
 script.py
 ejemplo.py
+cache.bcrfile
+
 .metals
 venv
 __pycache__
@@ -10,3 +12,5 @@ metadatos
 
 docs/build
 llm_models/*.bin
+
+

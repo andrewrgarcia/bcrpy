@@ -255,7 +255,7 @@ https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01273PM-PN00015MM-PN0
 
 
 El orden de las columnas en la tabla de datos ``pandas.DataFrame`` ``"df"`` ahora se colocan en el mismo orden en el cual han sido colocados  por el usuario en la variable ``banco.codigos``
-como opcion predeterminada. Si se desea usar el orden definido por BCRPData, reemplazar ``banco.GET()`` por ``banco.GET(orden=False)``. 
+como opcion predeterminada. Si se desea usar el orden definido por BCRPData, reemplazar ``banco.GET()`` por ``banco.GET(order=False)``. 
 
 La identidad de los nombres de serie con sus codigos, y en si cualquier lista con `x` codigos de series, se puede consultar con una iteracion del metodo ``query``, demostrado abajo:
 

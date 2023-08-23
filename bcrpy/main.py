@@ -12,7 +12,11 @@ from tqdm import tqdm
 from time import sleep
 
 import matplotlib.pyplot as plt 
-# from bcrpy.anexo import levenshtein_ratio
+
+from bcrpy.anexo import save_dataframe
+from bcrpy.anexo import load_dataframe
+
+import os
 
 from termcolor import colored, cprint
 from colorama import just_fix_windows_console
@@ -53,20 +57,16 @@ class Marco:
         
         decoration = colored("Estado actual de parametros constructores del objeto:", "green")
 
+        def cyan(text): return colored(text, "cyan")
 
-        text = '''
-objeto.metadata = {}
-objeto.codigos = {}
-objeto.formato = {}
-objeto.fechaini = {}
-objeto.fechafin = {}
-objeto.idioma = {}
-'''.format('<vacio>' if len(self.metadata)==0 else str(type(self.metadata))+' size: '+str(self.metadata.shape),
-        self.codigos,
-        self.formato,
-        self.fechaini, 
-        self.fechafin,
-        self.idioma)
+        text = f'''
+{cyan('.metadata')} = {'<vacio>' if len(self.metadata)==0 else str(type(self.metadata))+' size: '+str(self.metadata.shape)}
+{cyan('.codigos')} = {self.codigos}
+{cyan('.formato')} = {self.formato}
+{cyan('.fechaini')} = {self.fechaini}
+{cyan('.fechafin')} = {self.fechafin}
+{cyan('.idioma')} = {self.idioma}
+'''
 
         print(decoration)
         print(text)
@@ -264,17 +264,17 @@ objeto.idioma = {}
             print('{}\t{}\t{}'.format(count,code_dict[value],value))
         # print(code_dict)
 
-    def GET(self,filename=False, orden=True,tiempo="timestamp"):
+    def GET(self, forget = False, order=True, datetime=True):
         '''Extrae los datos del BCRPData selecionados por las previamente-declaradas variables `objeto.codigos`, `objeto.fechaini`, `objeto.fechafin`, `objeto.formato`, y `objeto.idioma`. 
 
         Parametros
         ----------
-        filename : str (opcional)
-            Nombre para guardar los datos extraidos como un archivo .csv
-        orden : bool
-            Las columnas mantienen el orden declarados por el usuario en `objeto.codigos`  con opcion `orden=True` (predeterminado). Cuando `orden=False`, las columnas de los datos es la predeterminada por BCRPData. 
-        tiempo : str
-            Formato de las fechas en el pandas.Dataframe. Predeterminado: `timestamp` convierte fechas con el formato `str(MMM.YYYY)` (ejemplo Apr.2022) de BCRPData a la estructura de datos `Timestampt(YYYY-MM-01)` que es elastico para las graficas visuales y otra manipulacion de datos. Cualquier otro valor para esta variable mantiene el formato rigido `str(MMM.YYYY)` de BCRPData. 
+        forget : bool
+            Si `True`, se restablecerá el caché y se obtendrán los datos nuevamente incluso si ya existen en el caché.
+        order : bool
+            Las columnas mantienen el orden declarados por el usuario en `objeto.codigos`  con opcion `order=True` (predeterminado). Cuando `order=False`, las columnas de los datos es la predeterminada por BCRPData. 
+        datetime : bool
+            Formato de las fechas en el pandas.Dataframe. Predeterminado: `True` convierte fechas con el formato `str(MMM.YYYY)` (ejemplo Apr.2022) de BCRPData a la estructura de datos `Timestamp(YYYY-MM-01)` que es elastico para las graficas visuales y otra manipulacion de datos. `False` mantiene el formato rigido `str(MMM.YYYY)` de BCRPData. 
         '''
 
         root = 'https://estadisticas.bcrp.gob.pe/estadisticas/series/api'
@@ -288,30 +288,37 @@ objeto.idioma = {}
         print('URL:')
         print(url)
 
-        print(colored('Obteniendo información con la URL de arriba usando requests.get. Por favor espere...',"green", attrs=["blink"]))
-        response = requests.get(url)
+        cache_filename = 'cache.bcrfile'    # manten data en memoria temporal (cache) para no hacer GET redundante
 
-        dict  = response.json()
+        if  os.path.exists(cache_filename) and not forget:  
+            print(colored('Obteniendo información de datos desde la memoria caché',"green", attrs=["blink"]))
 
-        header = [k['name'] for k in dict['config']['series'] ]
-        df = pandas.DataFrame(columns=header) # aqui todavia no se han insertado los datos en las filas
+            self.data = load_dataframe(cache_filename)
+
+        else:
+            print(colored('Obteniendo información con la URL de arriba usando requests.get. Por favor espere...',"green", attrs=["blink"]))
+            response = requests.get(url)
+
+            dict  = response.json()
+
+            header = [k['name'] for k in dict['config']['series'] ]
+            df = pandas.DataFrame(columns=header) # aqui todavia no se han insertado los datos en las filas
 
 
-        for j in dict['periods']:
-            # print(j['values'])
-            df.loc[j['name']] = [float(ij) if ij!='n.d.' else None for ij in j['values'] ]
+            for j in dict['periods']:
+                # print(j['values'])
+                df.loc[j['name']] = [float(ij) if ij!='n.d.' else None for ij in j['values'] ]
 
-        if tiempo =="timestamp":
-            df.index = pandas.to_datetime(df.index)     #convierte fechas a datetime (para facilitar visual acercar y alejar ticks de las graficas)
+            if datetime:
+                df.index = pandas.to_datetime(df.index)     # convierte fechas a datetime (para facilitar visual acercar y alejar ticks de las graficas)
 
-        self.data = df              #almacena datos extraidos de BCRPData en self.data 
+            self.data = df                                  # almacena datos extraidos de BCRPData en self.data 
 
-        self.ordenar_columnas() if orden else self.ordenar_columnas(False)
+            self.ordenar_columnas() if order else self.ordenar_columnas(False)
 
-        print(url)
+            print(url)
 
-        if filename:
-            self.data.to_csv(filename,sep=",")
+            save_dataframe(df,cache_filename)
         
         return self.data
 
