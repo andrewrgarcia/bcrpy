@@ -8,9 +8,7 @@ __pycache__
 *.csv
 
 data
-metadatos
 
 docs/build
 llm_models/*.bin
-
 

@@ -1,6 +1,6 @@
 import requests 
 import json 
-
+import pickle 
 import numpy as np
 import pandas
 
@@ -80,9 +80,15 @@ class Marco:
         filename : str
             Nombre del archivo para guardar todos los metadatos extraidos como un archivo .csv (predeterminado: 'metadata.csv'). Si se desea no guardar un archivo, cambiar a filename=''
         '''
-        self.metadata = pandas.read_csv(
-            'https://estadisticas.bcrp.gob.pe/estadisticas/series/metadata', delimiter=';', encoding='latin-1'
-            )
+        # SYSTEM DOWN --- BCRP Metadata emptied
+        # self.metadata = pandas.read_csv(
+        #     'https://estadisticas.bcrp.gob.pe/estadisticas/series/metadata', delimiter=';', encoding='latin-1'
+        #     )
+        
+        # BACKUP vv
+        url = 'https://github.com/andrewrgarcia/bcrpy/raw/main/metadatos'
+        self.metadata = requests.get(url).content
+        self.metadata = pickle.loads(self.metadata)
         
         if filename[-3:] == 'csv':
             self.metadata.to_csv(filename,sep=";",index=False, index_label=False)
