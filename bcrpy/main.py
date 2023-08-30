@@ -327,6 +327,35 @@ class Marco:
             save_dataframe(df,cache_filename)
         
         return self.data
+    
+    def hacha(self, codigos=[], chunk_size=100):
+        '''Obtiene todos los datos de las series de tiempo y los agrupa en un solo dataframe.
+
+        Parametros:
+        ----------
+        chunk_size : int
+            Número de series de tiempo para obtener en cada fragmento (por defecto es 100).
+        '''
+        # Divide codigos into chunks
+        codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
+
+        # Initialize a list to store dataframes
+        all_dataframes = []
+
+        # Iterate through codigo_chunks with progress tracking and error handling
+        for idx, chunk in enumerate(codigo_chunks):
+            try:
+                self.codigos = chunk
+                df = self.GET(forget=True)
+                all_dataframes.append(df)
+                print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
+            except Exception as e:
+                print(f"Error en el fragmento {idx + 1}: {e}")
+
+        # Concatenate all dataframes into a single dataframe
+        final_dataframe = pandas.concat(all_dataframes, ignore_index=True)
+        return final_dataframe
+
 
     def plot(self, data, title='', titlesize=9, func='plot'):
         '''Grafica x-y data.
