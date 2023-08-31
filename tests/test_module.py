@@ -37,7 +37,7 @@ def test_GETandplot():
     banco.fechaini = '2019-1'
     banco.fechafin = '2021-1'
 
-    banco.parametros()
+    banco.parameters()
 
     df = banco.GET()
 
@@ -57,12 +57,12 @@ def test_GETorden():
     banco.fechaini = '2019-1'
     banco.fechafin = '2021-1'
 
-    banco.parametros()
+    banco.parameters()
 
     df = banco.GET(order=True)
     print(df)
 
-    banco.parametros()
+    banco.parameters()
 
     print('GET orden de lista')
 
@@ -76,7 +76,7 @@ def test_GETreset():
     banco.fechaini = '2019-1'
     banco.fechafin = '2021-1'
 
-    banco.parametros()
+    banco.parameters()
 
     df = banco.GET(forget=True)
     print(df)

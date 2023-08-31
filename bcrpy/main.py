@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 
 from bcrpy.anexo import save_dataframe
 from bcrpy.anexo import load_dataframe
+from bcrpy.hacha import Hacha
 
 import os
 
@@ -31,7 +32,7 @@ class Marco:
         metadata: pandas.DataFrame
             Los metadatos de las series estadísticas del BRCPData, los cuales pueden ser reducidos con el metodo refine_metadata de esta `class`. 
         data: pandas.DataFrame
-            Los datos extraidos del BRCPData de acuerdo a la informacion declarada en las variables constructoras (vea metodo `parametros()`) con el metodo `GET()` de esta clase.  
+            Los datos extraidos del BRCPData de acuerdo a la informacion declarada en las variables constructoras (vea metodo `parameters()`) con el metodo `GET()` de esta clase.  
         codigos : list(str)
             lista de codigos de series en interes para usar con los metodos de esta `class`. 
         formato : str
@@ -51,7 +52,7 @@ class Marco:
         self.fechafin = '2016-9'
         self.idioma = 'ing'
 
-    def parametros(self):
+    def parameters(self):
         '''Declara el estado actual de todas las variables constructoras de la clase Marco. 
         '''
         
@@ -243,7 +244,7 @@ class Marco:
             self.save_metadata(filename)
 
 
-    def ordenar_columnas(self,hacer=True):
+    def order_columns(self,hacer=True):
         '''sub-metodo para re-ordenar columnas de acuerdo a como fueron definidos en objeto.codigos (vea metodo `GET()` parametro "orden")
 
         Parametros
@@ -320,7 +321,7 @@ class Marco:
 
             self.data = df                                  # almacena datos extraidos de BCRPData en self.data 
 
-            self.ordenar_columnas() if order else self.ordenar_columnas(False)
+            self.order_columns() if order else self.order_columns(False)
 
             print(url)
 
@@ -328,14 +329,15 @@ class Marco:
         
         return self.data
     
-    def hacha(self, codigos=[], chunk_size=100):
-        '''Obtiene todos los datos de las series de tiempo y los agrupa en un solo dataframe.
+    def largeGET(self, codigos=[], chunk_size=100):
+        '''Extrae los datos del BCRPData selecionados para cantidades mas grandes de 100 series temporales. 
 
         Parametros:
         ----------
         chunk_size : int
             Número de series de tiempo para obtener en cada fragmento (por defecto es 100).
         '''
+        hacha = Hacha()
         # Divide codigos into chunks
         codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
 
@@ -353,7 +355,7 @@ class Marco:
                 print(f"Error en el fragmento {idx + 1}: {e}")
 
         # Concatenate all dataframes into a single dataframe
-        final_dataframe = pandas.concat(all_dataframes, ignore_index=True)
+        final_dataframe = hacha.une(all_dataframes)
         return final_dataframe
 
 
