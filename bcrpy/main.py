@@ -1,27 +1,24 @@
+import os
 import requests 
 import json 
 import pickle 
-import numpy as np
+import numpy
+import matplotlib.pyplot as plt 
 import pandas
-
-from difflib import get_close_matches
-from iteration_utilities import flatten
-from itertools import chain
+import concurrent.futures
 
 from tqdm import tqdm
 from time import sleep
-
-import matplotlib.pyplot as plt 
+from difflib import get_close_matches
+from iteration_utilities import flatten
+from itertools import chain
+from termcolor import colored, cprint
+from colorama import just_fix_windows_console
+just_fix_windows_console()
 
 from bcrpy.anexo import save_dataframe
 from bcrpy.anexo import load_dataframe
 from bcrpy.hacha import Hacha
-
-import os
-
-from termcolor import colored, cprint
-from colorama import just_fix_windows_console
-just_fix_windows_console()
 
 class Marco:
     def __init__(self):
@@ -329,6 +326,14 @@ class Marco:
         
         return self.data
     
+
+    def get_data_for_chunk(self,chunk):
+        # Helper function for largeGET; Get data for a single chunk (dataframe fragment to build larger, complete dataframe)
+        self.codigos = chunk
+        df = self.GET(forget=True)
+        return df
+
+    
     def largeGET(self, codigos=[], chunk_size=100):
         '''Extrae los datos del BCRPData selecionados para cantidades mas grandes de 100 series temporales. 
 
@@ -347,8 +352,9 @@ class Marco:
         # Iterate through codigo_chunks with progress tracking and error handling
         for idx, chunk in enumerate(codigo_chunks):
             try:
-                self.codigos = chunk
-                df = self.GET(forget=True)
+                # self.codigos = chunk
+                # df = self.GET(forget=True)
+                df = self.get_data_for_chunk(chunk)
                 all_dataframes.append(df)
                 print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
             except Exception as e:
@@ -357,6 +363,44 @@ class Marco:
         # Concatenate all dataframes into a single dataframe
         final_dataframe = hacha.une(all_dataframes)
         return final_dataframe
+    
+
+    def turboGET(self, codigos=[], chunk_size=100):
+
+        hacha = Hacha()
+
+        # Divide codigos into chunks
+        codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
+
+        # Initialize a list to store dataframes
+        all_dataframes = []
+        errors = []
+        k=0
+        # Create a ThreadPoolExecutor for concurrent execution
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Submit tasks for each chunk
+            futures = [executor.submit(self.get_data_for_chunk, chunk) for chunk in codigo_chunks]
+
+
+            # Wait for all tasks to complete and retrieve results
+            for future in concurrent.futures.as_completed(futures):
+
+                try:
+                    df = future.result()
+                    all_dataframes.append(df)
+                    print(f"Fragmento obtenido exitosamente.")
+                    print(df.shape)
+                except Exception as e:
+                    print(f"Error: {e}")
+                    errors.append(k)
+
+                k+=1
+
+        print(f'errors {errors}')
+        # Concatenate all dataframes into a single dataframe
+        final_dataframe = hacha.une(all_dataframes)
+        return final_dataframe
+    
 
 
     def plot(self, data, title='', titlesize=9, func='plot'):
