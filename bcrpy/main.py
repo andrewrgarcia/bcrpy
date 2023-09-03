@@ -6,6 +6,7 @@ import numpy
 import matplotlib.pyplot as plt 
 import pandas
 import concurrent.futures
+from pathos.multiprocessing import ProcessPool
 
 from tqdm import tqdm
 import time
@@ -279,6 +280,11 @@ class Marco:
             Las columnas mantienen el orden declarados por el usuario en `objeto.codigos`  con opcion `order=True` (predeterminado). Cuando `order=False`, las columnas de los datos es la predeterminada por BCRPData. 
         datetime : bool
             Formato de las fechas en el pandas.Dataframe. Predeterminado: `True` convierte fechas con el formato `str(MMM.YYYY)` (ejemplo Apr.2022) de BCRPData a la estructura de datos `Timestamp(YYYY-MM-01)` que es elastico para las graficas visuales y otra manipulacion de datos. `False` mantiene el formato rigido `str(MMM.YYYY)` de BCRPData. 
+        
+        Devuelve
+        ------------
+        pandas.DataFrame
+            Un DataFrame que contiene los datos de las series temporales seleccionadas.
         '''
 
         root = 'https://estadisticas.bcrp.gob.pe/estadisticas/series/api'
@@ -334,69 +340,86 @@ class Marco:
         return df
 
     
-    def largeGET(self, codigos=[], chunk_size=100):
-        '''Extrae los datos del BCRPData selecionados para cantidades mas grandes de 100 series temporales. 
+    def largeGET(self, codigos=[], chunk_size=100, turbo=True, nucleos = 4):
+        '''Extrae los datos del BCRPData seleccionados para cantidades mayores a 100 series temporales.
 
-        Parametros:
-        ----------
+        Parametros
+        ------------
+        codigos : list
+            Lista de códigos de series temporales a obtener (por defecto es una lista vacía).
         chunk_size : int
-            Número de series de tiempo para obtener en cada fragmento (por defecto es 100).
+            Número de series temporales para obtener en cada fragmento (por defecto es 100).
+        turbo : bool
+            Indica si se debe utilizar el modo "turbo" para la extracción paralela (por defecto es True).
+        nucleos : int
+            Número de núcleos de procesador "cores" a utilizar en el modo "turbo" (por defecto es 4).
+
+        Devuelve
+        ------------
+        pandas.DataFrame
+            Un DataFrame que contiene los datos de las series temporales seleccionadas.
         '''
         hacha = Hacha()
-        # Divide codigos into chunks
+        # Divide codigos en chunks
         codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
 
-        # Initialize a list to store dataframes
-        all_dataframes = []
+        # Lista con todos los fragmentos de la dataframe
+        all_chunks = []
 
-        # Iterate through codigo_chunks with progress tracking and error handling
-        for idx, chunk in enumerate(codigo_chunks):
-            try:
-                # self.codigos = chunk
-                # df = self.GET(forget=True)
-                df = self.get_data_for_chunk(chunk)
-                all_dataframes.append(df)
-                print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
-            except Exception as e:
-                print(f"Error en el fragmento {idx + 1}: {e}")
+        if turbo:
+            # Crea un ProcessPool para la ejecución en paralelo
+            with ProcessPool(processes=nucleos) as pool:
+                # Mapea la función de procesamiento de fragmentos a los fragmentos
+                results = pool.map(self.get_data_for_chunk, codigo_chunks)
 
-        # Concatenate all dataframes into a single dataframe
-        final_dataframe = hacha.une(all_dataframes)
+                for result in results:
+                    try:
+                        data_chunk = result
+                        all_chunks.append(data_chunk)
+                        print(f"Fragmento obtenido exitosamente.")
+                        print(data_chunk.shape)
+                    except Exception as e:
+                        print(f"Error: {e}")
+        else:
+            # Iterar a través de los fragmentos de codigo_chunks con seguimiento de progreso y manejo de errores
+            for idx, chunk in enumerate(codigo_chunks):
+                try:
+                    data_chunk = self.get_data_for_chunk(chunk)
+                    all_chunks.append(data_chunk)
+                    print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
+                except Exception as e:
+                    print(f"Error en el fragmento {idx + 1}: {e}")
+
+        # Concatena todos los fragmentos dataframes en un solo dataframe
+        final_dataframe = hacha.une(all_chunks)
         return final_dataframe
     
 
-    # def turboGET(self, codigos=[], chunk_size=100):
-    #     hacha = Hacha()
+    def turboGET(self, codigos=[], chunk_size=100, nucleos = 4):
+        hacha = Hacha()
 
-    #     # Divide codigos into chunks
-    #     codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
+        # Divide codigos into chunks
+        codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
 
-    #     # Initialize a list to store dataframes
-    #     all_dataframes = []
-    #     errors = []
-    #     k = 0
-    #     # Create a ThreadPoolExecutor for concurrent execution
-    #     with concurrent.futures.ThreadPoolExecutor() as executor:
-    #         # Submit tasks for each chunk
-    #         futures = [executor.submit(self.get_data_for_chunk, chunk) for chunk in codigo_chunks]
+        all_chunks = []
 
-    #         # Wait for all tasks to complete and retrieve results
-    #         for future in concurrent.futures.as_completed(futures):
-    #             try:
-    #                 df = future.result()
-    #                 all_dataframes.append(df)
-    #                 print(f"Fragmento obtenido exitosamente.")
-    #                 print(df.shape)
-    #             except Exception as e:
-    #                 print(f"Error: {e}")
-    #                 errors.append(k)
+        # Crea un ProcessPool para la ejecución en paralelo
+        with ProcessPool(processes=nucleos) as pool:
+            # Map the chunk processing function to the chunks
+            results = pool.map(self.get_data_for_chunk, codigo_chunks)
 
-    #             k+=1
+            for result in results:
+                try:
+                    data_chunk = result
+                    all_chunks.append(data_chunk)
+                    print(f"Fragmento obtenido exitosamente.")
+                    print(data_chunk.shape)
+                except Exception as e:
+                    print(f"Error: {e}")
 
-    #     print(f'errors {errors}')
-    #     # Concatenate all dataframes into a single dataframe
-    #     final_dataframe = hacha.une(all_dataframes)
-    #     return final_dataframe
+        # Concatena todos los fragmentos dataframes en un solo dataframe
+        final_dataframe = hacha.une(all_chunks)
+        return final_dataframe
     
 
 
