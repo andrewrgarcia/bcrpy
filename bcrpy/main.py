@@ -8,7 +8,7 @@ import pandas
 import concurrent.futures
 
 from tqdm import tqdm
-from time import sleep
+import time
 from difflib import get_close_matches
 from iteration_utilities import flatten
 from itertools import chain
@@ -206,7 +206,7 @@ class Marco:
             bool_df.iloc[:, k] = bool_df.iloc[:, k].apply(
                 lambda x: contains_similar_keyword(str(x), keyword, cutoff)
             )
-            sleep(0.001)
+            time.sleep(0.001)
             print()
 
         # Set remaining columns not matched to False
@@ -365,41 +365,38 @@ class Marco:
         return final_dataframe
     
 
-    def turboGET(self, codigos=[], chunk_size=100):
+    # def turboGET(self, codigos=[], chunk_size=100):
+    #     hacha = Hacha()
 
-        hacha = Hacha()
+    #     # Divide codigos into chunks
+    #     codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
 
-        # Divide codigos into chunks
-        codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
+    #     # Initialize a list to store dataframes
+    #     all_dataframes = []
+    #     errors = []
+    #     k = 0
+    #     # Create a ThreadPoolExecutor for concurrent execution
+    #     with concurrent.futures.ThreadPoolExecutor() as executor:
+    #         # Submit tasks for each chunk
+    #         futures = [executor.submit(self.get_data_for_chunk, chunk) for chunk in codigo_chunks]
 
-        # Initialize a list to store dataframes
-        all_dataframes = []
-        errors = []
-        k=0
-        # Create a ThreadPoolExecutor for concurrent execution
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Submit tasks for each chunk
-            futures = [executor.submit(self.get_data_for_chunk, chunk) for chunk in codigo_chunks]
+    #         # Wait for all tasks to complete and retrieve results
+    #         for future in concurrent.futures.as_completed(futures):
+    #             try:
+    #                 df = future.result()
+    #                 all_dataframes.append(df)
+    #                 print(f"Fragmento obtenido exitosamente.")
+    #                 print(df.shape)
+    #             except Exception as e:
+    #                 print(f"Error: {e}")
+    #                 errors.append(k)
 
+    #             k+=1
 
-            # Wait for all tasks to complete and retrieve results
-            for future in concurrent.futures.as_completed(futures):
-
-                try:
-                    df = future.result()
-                    all_dataframes.append(df)
-                    print(f"Fragmento obtenido exitosamente.")
-                    print(df.shape)
-                except Exception as e:
-                    print(f"Error: {e}")
-                    errors.append(k)
-
-                k+=1
-
-        print(f'errors {errors}')
-        # Concatenate all dataframes into a single dataframe
-        final_dataframe = hacha.une(all_dataframes)
-        return final_dataframe
+    #     print(f'errors {errors}')
+    #     # Concatenate all dataframes into a single dataframe
+    #     final_dataframe = hacha.une(all_dataframes)
+    #     return final_dataframe
     
 
 
