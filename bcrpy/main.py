@@ -337,6 +337,8 @@ class Marco:
         # Helper function for largeGET; Get data for a single chunk (dataframe fragment to build larger, complete dataframe)
         self.codigos = chunk
         df = self.GET(forget=True)
+        df.columns = [f"{col}, codigo no. {chunk[idx]}" for idx, col in enumerate(df.columns)]
+        
         return df
 
     
@@ -346,7 +348,7 @@ class Marco:
         Parametros
         ------------
         codigos : list
-            Lista de códigos de series temporales a obtener (por defecto es una lista vacía).
+            Lista de códigos de series temporales a obtener y/o obtenidos [para el caso de turbo (computo paralelo)] (por defecto es una lista vacía).
         chunk_size : int
             Número de series temporales para obtener en cada fragmento (por defecto es 100).
         turbo : bool
@@ -360,6 +362,7 @@ class Marco:
             Un DataFrame que contiene los datos de las series temporales seleccionadas.
         '''
         hacha = Hacha()
+
         # Divide codigos en chunks
         codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
 
@@ -389,36 +392,17 @@ class Marco:
                     print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
                 except Exception as e:
                     print(f"Error en el fragmento {idx + 1}: {e}")
+            
+            self.codigos = codigos
 
         # Concatena todos los fragmentos dataframes en un solo dataframe
         final_dataframe = hacha.une(all_chunks)
-        return final_dataframe
-    
+        self.codigos = [ i.split(", codigo no. ")[-1] for i in final_dataframe.columns] if turbo else codigos
 
-    def turboGET(self, codigos=[], chunk_size=100, nucleos = 4):
-        hacha = Hacha()
+        print(self.codigos)
+        print(f'Todos los fragmentos han sido obtenidos! (n={len(self.codigos)})')
+        print('Lista de codigos en su orden en el dataframe : self.codigos (arriba ^^)\n')
 
-        # Divide codigos into chunks
-        codigo_chunks = [codigos[i:i + chunk_size] for i in range(0, len(codigos), chunk_size)]
-
-        all_chunks = []
-
-        # Crea un ProcessPool para la ejecución en paralelo
-        with ProcessPool(processes=nucleos) as pool:
-            # Map the chunk processing function to the chunks
-            results = pool.map(self.get_data_for_chunk, codigo_chunks)
-
-            for result in results:
-                try:
-                    data_chunk = result
-                    all_chunks.append(data_chunk)
-                    print(f"Fragmento obtenido exitosamente.")
-                    print(data_chunk.shape)
-                except Exception as e:
-                    print(f"Error: {e}")
-
-        # Concatena todos los fragmentos dataframes en un solo dataframe
-        final_dataframe = hacha.une(all_chunks)
         return final_dataframe
     
 

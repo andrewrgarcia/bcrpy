@@ -1,5 +1,6 @@
 requests 
 pandas
+pathos
 tqdm
 sphinx
 iteration_utilities

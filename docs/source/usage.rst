@@ -20,7 +20,7 @@ dentro de un `ambiente virtual virtualenv <https://docs.python.org/es/3/library/
 (tambien conocido como `*Object Oriented Programming (OOP)* <https://en.wikipedia.org/wiki/Object-oriented_programming>`_) 
 lo cual se reduce a que objetos pueden ser usados a almacenar metodos (funciones), datos, y su manejo de aquellos. 
 
-Extraccion de metadatos
+Extracción de metadatos
 -------------------------------
 
 En el caso de abajo, vemos como el objeto definido con la variable ``banco`` se usa para extraer los metadatos del BCRPData con el metodo ``get_metadata``,
@@ -178,7 +178,7 @@ por favor esperar...
 El código anterior almacena los metadatos de todas las series económicas con frecuencia mensual encontradas mediante la función 
 ``wordsearch`` en una ``pandas.DataFrame`` con el nombre "df_mensuales". Se observa que los metadatos filtrados corresponden a 6641 códigos de los más de 14,000 presentes en BCRPData.
 
-Facil extraccion de series economicas y generacion de graficas 
+Facil extracción de series economicas y generacion de graficas 
 -------------------------------------------------------------------
 
 El ingenio del *Object Oriented Programming (OOP)* se encuentra en que los inputs del objeto (en este caso, el objeto definido como ``banco``) pueden ser modificados y sus metodos (funciones) pueden funcionar con aquellos cambios. 
@@ -337,3 +337,44 @@ La identidad de los nombres de serie con sus codigos, y en si cualquier lista co
          "Fecha de fin": "Sep-2022",
          "Memo": NaN
    }
+
+
+
+Extraccion mas de 100 Series temporales con LargeGET
+-----------------------------------------------------------
+
+Con **largeGET**, las posibilidades son ilimitadas cuando se trata de solicitudes GET, 
+ya que puede manejar tantos códigos de series temporales como se necesiten. Este método divide los códigos de series temporales en fragmentos 
+de 100 series o menos, luego realiza solicitudes GET de forma iterativa y re-ensambla los fragmentos de datos en un full dataframe. Hemos 
+encontrado la forma de hacer este proceso mas rapido con *parallel computing (multiprocessing)*, utilizando multiples procesadores concurrentemente  
+
+
+.. image:: ../img/largeget.png
+  :width: 450
+  :alt: figure 5
+  :align: center
+
+
+Para correr **largeGET** con concurrencia (computacion paralela en nucleos CPU), activar ``turbo`` y especificar el numero de nucleos de la siguiente manera:
+
+.. code-block:: python
+
+   import bcrpy
+
+   banco = bcrpy.Marco()			# cargar objeto
+   banco.fechaini = '2002'
+   banco.fechafin = '2022'
+
+   # extraer metadatos para Series anuales (columna 5 == Frecuencia)
+   df_mensuales = banco.wordsearch("Anual",cutoff=1,columnas=[5])
+
+   codigos = [i for i in df_mensuales.iloc[:,0]]
+   df = banco.largeGET(codigos,turbo=True, nucleos=4)
+
+
+La mayoria de computadoras modernas tienen de 2 a 4 nucleos CPU. Si no esta seguro cuantos nucleos y 4 no funciona, trate con nucleos=2. 
+Si no deseas utilizar la paralelización, simplemente cambia la opción turbo a False. 
+
+
+Este codigo devuelve un DataFrame (df) que contiene todas las Series anuales de BCRPData desde el 2002 hasta el 2022, 
+lo que resulta en un total de 5,564 columnas!
