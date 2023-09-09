@@ -1,5 +1,6 @@
 import pandas
 
+
 class Hacha:
     def __init__(self):
         """Inicializador de la clase Hacha.
@@ -23,9 +24,10 @@ class Hacha:
         chunk_size : int
             Tamaño de cada fragmento (por defecto es 100).
         """
-        self.fragments = [dataframe[i:i + chunk_size] for i in range(0, len(dataframe), chunk_size)]
+        self.fragments = [
+            dataframe[i : i + chunk_size] for i in range(0, len(dataframe), chunk_size)
+        ]
         return self.fragments
-
 
     def une(self, fragments, axis=1, ignore_index=False):
         """Combina una lista de fragmentos en un solo dataframe.
@@ -46,4 +48,4 @@ class Hacha:
             Si es True, no se conservarán los índices originales de los fragmentos y se
             generará un nuevo índice en el dataframe resultante.
         """
-        return pandas.concat(fragments,axis=axis,ignore_index=ignore_index)
+        return pandas.concat(fragments, axis=axis, ignore_index=ignore_index)

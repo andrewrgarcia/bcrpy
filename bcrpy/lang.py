@@ -9,16 +9,14 @@ Answer: Let's think step by step."""
 
 prompt = PromptTemplate(template=template, input_variables=["question"])
 
-'''
+"""
 Using:
 ggml-model-gpt4all-falcon-q4_0.bin
 
 Downloaded from: https://gpt4all.io/index.html
 see ../llm_models/README.md
-'''
-local_path = ("../llm_models/ggml-model-gpt4all-falcon-q4_0.bin"  # replace with your desired local file path
-)
-
+"""
+local_path = "../llm_models/ggml-model-gpt4all-falcon-q4_0.bin"  # replace with your desired local file path
 
 
 # Callbacks support token-wise streaming
@@ -32,12 +30,8 @@ llm = GPT4All(model=local_path, callbacks=callbacks, verbose=True)
 llm = GPT4All(model=local_path, backend="gptj", callbacks=callbacks, verbose=True)
 
 
-
 llm_chain = LLMChain(prompt=prompt, llm=llm)
 
 question = "What NFL team won the Super Bowl in the year Justin Bieber was born?"
 
 llm_chain.run(question)
-
-
-

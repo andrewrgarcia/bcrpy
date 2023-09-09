@@ -1,13 +1,15 @@
-# bcrpy
 
-[![](docs/img/icon_bcrpy.png)](https://bcrpy.readthedocs.io/en/latest/)
+<a href="https://bcrpy.vercel.app/"><img src="docs/img/bcrp_poly_logo.png" 
+        alt="Picture" 
+        width="300" 
+        style="display: block; margin: 0 auto" /></a>
 
+<h2 align="center">bcrpy</h2>
+
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/andrewrgarcia/voxelmap/main/LICENSE)[![Documentation Status](https://readthedocs.org/projects/bcrpy/badge/?version=latest)](https://bcrpy.readthedocs.io/en/latest/?badge=latest)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRPData](https://estadisticas.bcrp.gob.pe/estadisticas/series/) del [Banco Central de Reserva del Peru (BCRP)](https://www.bcrp.gob.pe/) escrito para Python. Este cliente es un _wrapper_ de la [API para Desarrolladores](https://estadisticas.bcrp.gob.pe/estadisticas/series/ayuda/api) del BCRP.
 
-
-
-[![](docs/img/bcrp_poly_logo.png)](https://bcrpy.vercel.app/)
 
 
 ## Vinculos 
