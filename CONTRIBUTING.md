@@ -1,11 +1,13 @@
 # This Repository is participating in HacktoberFest 2023 :fire: :robot: 
 
 
-![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/06_banners/hf10_banner/hf10_banner_1032x600.png?raw=true)
-
+![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/05_logo_set/hf10_horizontal_logos/cmyk/hf10_horz_fcl_cmyk.png?raw=true)
 
 
 ## What is HacktoberFest?
+
+![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/04_icon_set/@1x/10@1x.png?raw=true)
+
 
 [HacktoberFest](https://hacktoberfest.com/) is an annual celebration of open-source software in which individuals from all around the world come together to contribute to open-source projects. It's a fantastic opportunity to learn, collaborate, and support the community.
 
@@ -26,9 +28,14 @@ If you're new to version control or unfamiliar with it, please refer to the [Git
 
 To get started, fork this repository to your GitHub account. This will create a copy of the repository that you can work on.
 
+![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/04_icon_set/@1x/03@1x.png?raw=true)
+
 ### Step 2 - Clone the Repository
 
 Clone the forked repository to your local machine using Git. This will allow you to make changes and create pull requests.
+
+![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/04_icon_set/@1x/05@1x.png?raw=true)
+
 
 ### Step 3 - Create a Feature Branch
 
@@ -37,6 +44,8 @@ Before making any changes, create a new branch for your contribution to avoid co
 ```bash
 git checkout -b my-new-feature
 ```
+
+![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/04_icon_set/@1x/14@1x.png?raw=true)
 
 ### Step 4 - Contribute
 
@@ -50,5 +59,9 @@ Once you've made your changes, add them to your local repository. You can do thi
 
 When you're ready to submit your contributions, create a Pull Request (PR). Be sure to include a descriptive title and a detailed description of your changes in the PR. Your contributions will be reviewed by the project maintainers.
 
+![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/04_icon_set/@1x/08@1x.png?raw=true)
+
+
 # Happy HacktoberFest 2023!
 
+[![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/04_icon_set/@1x/13@1x.png?raw=true)](https://github.com/andrewrgarcia)
