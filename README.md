@@ -18,8 +18,7 @@ Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRP
 
 [pip package index](https://pypi.org/project/bcrpy/) 
 
-<a href="CONTRIBUIR.md"> <img src="https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/05_logo_set/hf10_horizontal_logos/cmyk/hf10_horz_fcd_cmyk.png?raw=true
-" width="1000"></a>
+[![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/05_logo_set/hf10_horizontal_logos/cmyk/hf10_horz_fcd_cmyk.png?raw=true)](CONTRIBUIR.md)
 
 En apoyo al código abierto, este repositorio se encuentra participando en Hacktoberfest 2023. Te invitamos a consultar [CONTRIBUIR](CONTRIBUIR.md) para obtener instrucciones sobre cómo contribuir como colaborador y unirte a nuestra lista de colaboradores. _For English guidelines in how to participate, check the [CONTRIBUTING](CONTRIBUTING.md) file. 
 
