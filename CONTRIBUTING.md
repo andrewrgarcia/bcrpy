@@ -1,7 +1,7 @@
 # This Repository is participating in HacktoberFest 2023 :fire: :robot: 
 
 
-![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/05_logo_set/hf10_horizontal_logos/cmyk/hf10_horz_fcl_cmyk.png?raw=true)
+![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/05_logo_set/hf10_horizontal_logos/cmyk/hf10_horz_fcd_cmyk.png?raw=true)
 
 
 ## What is HacktoberFest?
