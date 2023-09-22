@@ -10,8 +10,6 @@
 
 Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRPData](https://estadisticas.bcrp.gob.pe/estadisticas/series/) del [Banco Central de Reserva del Peru (BCRP)](https://www.bcrp.gob.pe/) escrito para Python. Este cliente es un _wrapper_ de la [API para Desarrolladores](https://estadisticas.bcrp.gob.pe/estadisticas/series/ayuda/api) del BCRP.
 
-
-
 ## Vinculos 
 
 [Documentación en linea (readthedocs)](https://bcrpy.readthedocs.io/en/latest/) 
@@ -19,6 +17,12 @@ Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRP
 [Manual bcrpy (pdf)](https://raw.githubusercontent.com/andrewrgarcia/bcrpy/main/bcrpy.pdf)
 
 [pip package index](https://pypi.org/project/bcrpy/) 
+
+<a href="CONTRIBUIR.md"> <img src="https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/05_logo_set/hf10_horizontal_logos/cmyk/hf10_horz_fcd_cmyk.png?raw=true
+" width="1000"></a>
+
+En apoyo al código abierto, este repositorio se encuentra participando en Hacktoberfest 2023. Te invitamos a consultar [CONTRIBUIR](CONTRIBUIR.md) para obtener instrucciones sobre cómo contribuir como colaborador y unirte a nuestra lista de colaboradores. _For English guidelines in how to participate, check the [CONTRIBUTING](CONTRIBUTING.md) file. 
+
 
 # Instalacion
 

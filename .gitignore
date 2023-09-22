@@ -1,6 +1,5 @@
 script.py
 ejemplo.py
-cache.bcrfile
 
 .metals
 venv
@@ -12,3 +11,9 @@ data
 docs/build
 llm_models/*.bin
 
+
+largeGET_test.py
+
+# cache 
+cache.bcrfile
+series_mensuales.bcrfile
