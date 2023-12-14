@@ -1,8 +1,10 @@
 
-<a href="https://bcrpy.vercel.app/"><img src="docs/img/bcrp_poly_logo.png" 
+<a href="https://bcrpy.vercel.app/"><img src="https://raw.githubusercontent.com/andrewrgarcia/bcrpy/main/docs/img/bcrp_poly_logo.png?raw=true" 
         alt="Picture" 
         width="300" 
         style="display: block; margin: 0 auto" /></a>
+
+        
 
 <h2 align="center">bcrpy</h2>
 
