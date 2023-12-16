@@ -12,7 +12,7 @@ docs/build
 llm_models/*.bin
 
 
-largeGET_test.py
+largeGET_try.py
 
 # cache 
 cache.bcrfile
