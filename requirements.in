@@ -2,7 +2,6 @@ requests
 pandas
 pathos
 tqdm
-iteration_utilities
 termcolor
 colorama
 bcrpy

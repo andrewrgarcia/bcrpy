@@ -190,6 +190,7 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
 .. code-block:: python
 
    import matplotlib.pyplot as plt
+   plt.style.use("seaborn")
 
    #escoger los inputs de los datos que se desean extraer del BCRPData (otros datos como banco.idioma (='ing') son predeterminados, pero tambien se pueden cambiar)
    banco.codigos = ['PN01273PM','PN00015MM','PN01289PM','PD39793AM']
@@ -201,10 +202,16 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
    # obtener informacion de los inputs seleccionados (arriba) en el mismo orden  
    df = banco.GET()	
 
-   #graficos (plots)
+   #plantilla para hacer plots
+   def plot_template(data,title):
+      plt.title(title, fontsize=12)
+      plt.grid(axis="x")
+      plt.plot(data)
+      plt.tight_layout()
+        
    for name in df.columns:
       plt.figure(figsize=(9, 4))
-      banco.plot(df[name],name,12)
+      plot_template(df[name],name)
    plt.show()
 
 

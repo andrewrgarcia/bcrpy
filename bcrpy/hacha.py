@@ -1,6 +1,5 @@
 import pandas
 
-
 class Hacha:
     def __init__(self):
         """Inicializador de la clase Hacha.

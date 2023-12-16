@@ -1,7 +1,6 @@
 import pickle
 import pandas
 
-
 def save_dataframe(df, filename):
     """Guarda la informacion de datos almacenados y procesados por Python en un archivo
 

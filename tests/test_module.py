@@ -1,9 +1,10 @@
 import bcrpy
 import matplotlib.pyplot as plt
+plt.style.use("seaborn")
+
 import numpy as np
 
 banco = bcrpy.Marco()
-
 
 def test_queries():
     banco.query()
@@ -18,7 +19,7 @@ def test_metadataGET():
 
 
 def test_words():
-    banco.wordsearch("economia")
+    banco.wordsearch("chicles")
     banco.wordsearch("economia", columnas=[0, 1])
 
     # df= banco.metadata
@@ -29,6 +30,13 @@ def test_words():
 def test_metadataLOAD():
     banco.load_metadata()
     print(banco.metadata)
+
+
+def plot_template(data,title):
+    plt.title(title, fontsize=12)
+    plt.grid(axis="x")
+    plt.plot(data)
+    plt.tight_layout()
 
 
 def test_GETandplot():
@@ -44,7 +52,7 @@ def test_GETandplot():
 
     for name in df.columns:
         plt.figure(figsize=(9, 4))
-        banco.plot(df[name], name, 12)
+        plot_template(df[name], name)
 
     plt.show()
 

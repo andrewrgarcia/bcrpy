@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bcrpy"
-version = "1.6.1"
+version = "1.7.0"
 description = "Un cliente API para la extraccion, consulta y analisis de la base de datos BCRPData del Banco Central de Reserva del Peru (BCRP)"
 authors = ["andrewrgarcia <garcia.gtr@gmail.com>"]
 license = "MIT"
@@ -12,13 +12,10 @@ requests = "^2.28.2"
 numpy = "^1.24.2"
 pandas = "^1.5.3"
 tqdm = "^4.65.0"
-matplotlib = "^3.7.1"
-iteration-utilities = "^0.11.0"
 tabulate = "^0.9.0"
 termcolor = "^2.2.0"
 colorama = "^0.4.6"
 pathos = "^0.3.1"
-timethis = "^0.1.1"
 
 
 [build-system]

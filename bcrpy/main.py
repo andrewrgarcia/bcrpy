@@ -2,17 +2,13 @@ import os
 import requests
 import json
 import pickle
-import numpy
-import matplotlib.pyplot as plt
 import pandas
-import concurrent.futures
+# import concurrent.futures
 from pathos.multiprocessing import ProcessPool
 
 from tqdm import tqdm
 import time
 from difflib import get_close_matches
-from iteration_utilities import flatten
-from itertools import chain
 from termcolor import colored, cprint
 from colorama import just_fix_windows_console
 
@@ -194,23 +190,18 @@ class Marco:
         new_df = df.copy()
         bool_df = df.copy()
 
-        ## CLOSED-FORM LANGUAGE PROCESSING
-        def contains_similar_keyword(
-            text,
-            keyword,
-            cutoff=0.8,
-        ):
+        # ## CLOSED-FORM LANGUAGE PROCESSING        
+        def contains_similar_keyword(text, keyword, cutoff=0.8):
             """Split titles into separate words and assess all with fuzzy string matching
             (True if similar word to keyword is found in titles/sentences)"""
             words = text.split()
-            similar_matches = list(
-                chain.from_iterable(
-                    get_close_matches(keyword, [word], n=1, cutoff=cutoff)
-                    for word in words
-                )
-            )
+            for word in words:
+                if get_close_matches(keyword, [word], n=1, cutoff=cutoff):
+                    return True
+            return False
+        
+        # def contains_similar_keyword(text, keyword, cutoff=0.8): return False         # pytest
 
-            return bool(similar_matches)
 
         # Do above for all columns in BCRP metadata
         loop_range = range(14) if columnas == "all" else columnas
@@ -447,25 +438,3 @@ class Marco:
         )
 
         return final_dataframe
-
-    def plot(self, data, title="", titlesize=9, func="plot"):
-        """Grafica x-y data.
-
-        Parametros
-        ----------
-        data : pandas.DataFrame
-            Data x-y extraida de BCRPData, x es fecha y es cantidad.
-        title : str
-            Titulo para grafica
-        func : str
-            Tipo de grafica. 'plot' es grafica comun, 'semilogy' es grafica con escala logaritmica en y-axis.
-        titlesize : str
-            Tamaño de titulo para grafica
-        """
-        plt.style.use("seaborn")
-
-        plt.title(title, fontsize=titlesize)
-        plt.grid(axis="x")
-        eval("plt.{}(data)".format(func))
-        # plt.xticks(data.index, rotation =60)
-        plt.tight_layout()
