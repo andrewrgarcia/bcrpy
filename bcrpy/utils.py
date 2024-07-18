@@ -1,5 +1,33 @@
+import pandas as pd
 import pickle
-import pandas
+from difflib import get_close_matches
+
+def scan_columns(df: pd.DataFrame, keyword: str, cutoff: float = 0.65):
+    """
+    Perform a fuzzy search on the column names of the given DataFrame and return columns that closely resemble the specified keyword.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The DataFrame whose columns are to be scanned.
+    keyword : str
+        The keyword to search for in the column names.
+    cutoff : float, optional
+        The similarity cutoff for the fuzzy matching (default is 0.65). Columns with a similarity score above this cutoff will be returned.
+
+    Returns
+    -------
+    list of str
+        A list of column names that closely resemble the specified keyword.
+    """
+    def contains_similar_keyword(text, keyword, cutoff=0.8):
+        words = text.split()
+        return any(get_close_matches(keyword, [word], n=1, cutoff=cutoff) for word in words)
+
+    close_matches = [col for col in df.columns if contains_similar_keyword(col, keyword, cutoff)]
+    return close_matches
+
+
 
 def save_dataframe(df, filename):
     """Guarda la informacion de datos almacenados y procesados por Python en un archivo
@@ -31,7 +59,7 @@ def load_dataframe(filename):
     """
 
     if filename[-3:] == "csv":
-        return pandas.read_csv(filename, delimiter=",")
+        return pd.read_csv(filename, delimiter=",")
 
     else:
         return pickle.load(open(filename, "rb"), encoding="latin1")
