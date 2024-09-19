@@ -5,10 +5,28 @@ import pickle
 class MetadataHandler:
     def get_metadata(self, filename="metadata.csv"):
         """Extract all metadata from BCRPData."""
-        url = "https://github.com/andrewrgarcia/bcrpy/raw/main/metadatos"
-        self.metadata = pickle.loads(requests.get(url).content)
+        
+        # Load metadata from the URL
+        try:
+            self.metadata = pd.read_csv('https://estadisticas.bcrp.gob.pe/estadisticas/series/metadata', delimiter=';', encoding='latin-1')
+        except Exception as e:
+            print(f"Error loading metadata from the primary URL: {e}")
+            self.metadata = pd.DataFrame()  
+
+        if self.metadata.shape[0] <= 5:
+            print("Warning: metadata contains fewer than 5 rows, likely empty or incomplete")
+            
+            # Load metadata from the backup URL using pickle
+            url = "https://github.com/andrewrgarcia/bcrpy/raw/main/metadatos"
+            try:
+                self.metadata = pickle.loads(requests.get(url).content)
+            except Exception as e:
+                print(f"Error loading metadata from backup URL: {e}")
+                return  # Exit the function if both URLs fail
+
         if filename:
             self.metadata.to_csv(filename, sep=";", index=False)
+
 
     def load_metadata(self, filename="metadata.csv"):
         """Load the metadata saved as a .csv file into Python."""
