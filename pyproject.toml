@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bcrpy"
-version = "2.1.0"
+version = "2.1.1"
 description = "An API client for the extraction, query, and analysis of the BCRPData database from the Central Reserve Bank of Peru (BCRP)."
 authors = ["andrewrgarcia <garcia.gtr@gmail.com>"]
 license = "MIT"
@@ -10,7 +10,7 @@ readme = "README.md"
 python = "^3.8"
 requests = "^2.28.2"
 numpy = "^1.24.2"
-pandas = "^1.5.3"
+pandas = ">=2.0.0"
 tqdm = "^4.65.0"
 tabulate = "^0.9.0"
 termcolor = "^2.2.0"
