@@ -8,12 +8,16 @@ from bcrpy.utils import save_dataframe, load_dataframe
 from bcrpy.hacha import Hacha
 
 class Fetcher:
-    def GET(self, forget=False, order=True, datetime=True, check_codes=False):
+    def GET(self, codes=None, forget=False, order=True, datetime=True, check_codes=False):
         """
         Extrae datos de BCRPData seleccionados por las variables declaradas previamente.
 
         Parameters
         ------------
+        codes : list or None, optional
+            Lista de códigos de series de datos a extraer. Si se proporciona, esta lista reemplaza 
+            la lista predeterminada en `self.codigos` y se utiliza para la solicitud GET. Si es None 
+            (predeterminado), se utilizará la lista de `self.codigos` existente.
         forget : bool
             Si True, se restablecerá el caché y se obtendrán los datos nuevamente incluso si ya existen en el caché.
         order : bool
@@ -26,7 +30,9 @@ class Fetcher:
         check_codes : bool
             Si True, los códigos de series serán validados contra los metadatos antes de realizar la solicitud GET (predeterminado: False).
         """
-
+        if codes is not None: 
+            self.codigos = codes
+        
         root = "https://estadisticas.bcrp.gob.pe/estadisticas/series/api"
         format = self.formato
         period = "{}/{}".format(self.fechaini, self.fechafin)
