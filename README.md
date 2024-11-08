@@ -4,8 +4,6 @@
         width="300" 
         style="display: block; margin: 0 auto" /></a>
 
-<br>
-
 <h2 align="center">bcrpy</h2>
 
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/andrewrgarcia/voxelmap/main/LICENSE)[![Documentation Status](https://readthedocs.org/projects/bcrpy/badge/?version=latest)](https://bcrpy.readthedocs.io/en/latest/?badge=latest)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
