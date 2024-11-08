@@ -138,7 +138,7 @@ Abajo, hacemos dos consultas con dos codigos de serie de la database:
 
 
 Opciones de Almacenamiento para Extracción de Datos
--------------------------------------------------------
+--------------------------------------------------------------------------------------
 
 Al extraer series temporales, el método ``GET()`` de ``bcrpy`` permite especificar el formato de almacenamiento de los datos, con dos opciones disponibles:
 
@@ -261,17 +261,27 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
 
 ``corriendo estado actual de todas las variables constructoras...``
 
-.. table:: 
-   :widths: 10 5 40
+..
+   .. table:: 
+      :widths: 10 3 40
 
-   ================ === ===========================================
-   objeto.metadata   =     <class 'pandas.core.frame.DataFrame'> size: (14858, 14)
-   objeto.codes    =     ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
-   objeto.formato    =     json
-   objeto.fechaini   =     2011-1
-   objeto.fechafin   =     2021-1
-   objeto.idioma     =     ing
-   ================ === ===========================================
+      ================ === ===========================================
+      objeto.metadata   =     <class 'pandas.core.frame.DataFrame'> size: (14858, 14)
+      objeto.codes    =     ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
+      objeto.formato    =     json
+      objeto.fechaini   =     2011-1
+      objeto.fechafin   =     2021-1
+      objeto.idioma     =     ing
+      ================ === ===========================================
+      
+**Object Attributes:**
+
+- **objeto.metadata**: `<class 'pandas.core.frame.DataFrame'>` size: (14858, 14)
+- **objeto.codes**: ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
+- **objeto.formato**: json
+- **objeto.fechaini**: 2011-1
+- **objeto.fechafin**: 2021-1
+- **objeto.idioma**: ing
 
 ``Orden de datos determinados por usuario:``
 
