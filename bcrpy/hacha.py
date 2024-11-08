@@ -1,11 +1,11 @@
 import pandas as pd
 
-class Hacha:
+class Axe:
     def __init__(self):
-        """Initializes the Hacha class for splitting and combining dataframes."""
+        """Initializes the Axe class for splitting and combining dataframes."""
         self.fragments = []
 
-    def parte(self, dataframe, chunk_size=100):
+    def slice(self, dataframe, chunk_size=100):
         """Splits a dataframe into smaller chunks of the specified size.
 
         Parameters
@@ -18,7 +18,7 @@ class Hacha:
         self.fragments = [dataframe[i:i + chunk_size] for i in range(0, len(dataframe), chunk_size)]
         return self.fragments
 
-    def une(self, fragments, axis=1, ignore_index=False):
+    def forge(self, fragments, axis=1, ignore_index=False):
         """Combines a list of fragments into a single dataframe.
 
         Parameters

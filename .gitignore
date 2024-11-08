@@ -17,3 +17,7 @@ largeGET_try.py
 # cache 
 cache.bcrfile
 series_mensuales.bcrfile
+
+# files-wzrd
+*FilesHere*
+show.txt

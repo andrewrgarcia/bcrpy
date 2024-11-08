@@ -22,7 +22,7 @@ class Marco(Fetcher, MetadataHandler):
             DataFrame to store metadata of statistical series from BCRPData.
         data : pd.DataFrame
             DataFrame to store extracted data from BCRPData.
-        codigos : list of str
+        codes : list of str
             List of series codes of interest.
         formato : str
             Format for extracting/processing data (default: 'json').
@@ -35,7 +35,7 @@ class Marco(Fetcher, MetadataHandler):
         """
         self.metadata: pd.DataFrame = pd.DataFrame()
         self.data: pd.DataFrame = pd.DataFrame()
-        self.codigos: list[str] = ["PN01288PM", "PN01289PM"]
+        self.codes: list[str] = ["PN01288PM", "PN01289PM"]
         self.formato: str = "json"
         self.fechaini: str = "2010-1"
         self.fechafin: str = "2016-9"
@@ -49,7 +49,7 @@ class Marco(Fetcher, MetadataHandler):
 
         text = f"""
 {cyan('.metadata')} = {'<vacio>' if self.metadata.empty else str(type(self.metadata))+' size: '+str(self.metadata.shape)}
-{cyan('.codigos')} = {self.codigos}
+{cyan('.codes')} = {self.codes}
 {cyan('.formato')} = {self.formato}
 {cyan('.fechaini')} = {self.fechaini}
 {cyan('.fechafin')} = {self.fechafin}
@@ -120,11 +120,11 @@ class Marco(Fetcher, MetadataHandler):
 
 
     def order_columns(self, hacer=True):
-        """Sub-method to reorder columns according to how they were defined in objeto.codigos."""
+        """Sub-method to reorder columns according to how they were defined in objeto.codes."""
         if self.metadata.empty:
             self.get_metadata()
-        user_order = [f"{self.query_dict(codigo)['Grupo de serie']} - {self.query_dict(codigo)['Nombre de serie']}" for codigo in self.codigos]
-        code_dict = {user_order[i]: self.codigos[i] for i in range(len(self.codigos))}
+        user_order = [f"{self.query_dict(codigo)['Grupo de serie']} - {self.query_dict(codigo)['Nombre de serie']}" for codigo in self.codes]
+        code_dict = {user_order[i]: self.codes[i] for i in range(len(self.codes))}
 
         if hacer:
             self.data = self.data.reindex(columns=user_order)

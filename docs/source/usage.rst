@@ -137,6 +137,50 @@ Abajo, hacemos dos consultas con dos codigos de serie de la database:
    }
 
 
+Opciones de Almacenamiento para Extracción de Datos
+-------------------------------------------------------
+
+Al extraer series temporales, el método ``GET()`` de ``bcrpy`` permite especificar el formato de almacenamiento de los datos, con dos opciones disponibles:
+
+- **DataFrame (`df`)**: Esta es la opción predeterminada, donde los datos se almacenan y devuelven en forma de un `Pandas DataFrame`.
+- **SQLite (`sql`)**: Los datos se almacenan en una base de datos SQLite, ideal para optimizar el rendimiento en consultas de gran volumen o para almacenamiento persistente.
+
+Para seleccionar el formato de almacenamiento, usa el parámetro `storage` en el método `GET()` de la siguiente manera:
+
+.. code-block:: python
+
+   # Extracción en formato DataFrame (predeterminado)
+   df = banco.GET(storage='df')
+
+   # Extracción y almacenamiento en una base de datos SQLite
+   df_sql = banco.GET(storage='sql')
+
+Ejemplo de Uso con Opciones de Almacenamiento
+-------------------------------------------------------
+
+En este ejemplo, extraemos datos de series temporales y almacenamos los resultados en ambos formatos:
+
+.. code-block:: python
+
+   import bcrpy
+
+   # Crear objeto y configurar parámetros de consulta
+   banco = bcrpy.Marco()
+   banco.codes = ['PN01273PM', 'PN00015MM']
+   banco.fechaini = '2020-1'
+   banco.fechafin = '2021-1'
+
+   # Extracción en formato DataFrame
+   df = banco.GET(storage='df')
+   print("Data almacenada en DataFrame:")
+   print(df)
+
+   # Extracción y almacenamiento en SQLite
+   df_sql = banco.GET(storage='sql')
+   print("Data almacenada en SQLite:")
+   print(df_sql)
+
+
 
 Ejemplo : Extraer todos los metadatos de series economicas con frecuencias mensuales
 -------------------------------------------------------------------------------------------------------------------
@@ -193,7 +237,7 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
    plt.style.use("seaborn")
 
    #escoger los inputs de los datos que se desean extraer del BCRPData (otros datos como banco.idioma (='ing') son predeterminados, pero tambien se pueden cambiar)
-   banco.codigos = ['PN01273PM','PN00015MM','PN01289PM','PD39793AM']
+   banco.codes = ['PN01273PM','PN00015MM','PN01289PM','PD39793AM']
    banco.fechaini = '2011-1'
    banco.fechafin = '2021-1'
 
@@ -222,7 +266,7 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
 
    ================ === ===========================================
    objeto.metadata   =     <class 'pandas.core.frame.DataFrame'> size: (14858, 14)
-   objeto.codigos    =     ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
+   objeto.codes    =     ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
    objeto.formato    =     json
    objeto.fechaini   =     2011-1
    objeto.fechafin   =     2021-1
@@ -261,12 +305,12 @@ https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PN01273PM-PN00015MM-PN0
   :alt: figure 4
 
 
-El orden de las columnas en la tabla de datos ``pandas.DataFrame`` ``"df"`` ahora se colocan en el mismo orden en el cual han sido colocados  por el usuario en la variable ``banco.codigos``
+El orden de las columnas en la tabla de datos ``pandas.DataFrame`` ``"df"`` ahora se colocan en el mismo orden en el cual han sido colocados  por el usuario en la variable ``banco.codes``
 como opcion predeterminada. Si se desea usar el orden definido por BCRPData, reemplazar ``banco.GET()`` por ``banco.GET(order=False)``. 
 
 La identidad de los nombres de serie con sus codigos, y en si cualquier lista con `x` codigos de series, se puede consultar con una iteracion del metodo ``query``, demostrado abajo:
 
->>> [banco.query(codigo) for codigo in banco.codigos]   #referencia, codigos
+>>> [banco.query(codigo) for codigo in banco.codes]   #referencia, codigos
 
 .. code-block:: ruby
 
@@ -375,8 +419,8 @@ Para correr **largeGET** con concurrencia (computacion paralela en nucleos CPU),
    # extraer metadatos para Series anuales (columna 5 == Frecuencia)
    df_mensuales = banco.wordsearch("Anual",cutoff=1,columnas=[5])
 
-   codigos = [i for i in df_mensuales.iloc[:,0]]
-   df = banco.largeGET(codigos,turbo=True, nucleos=4)
+   codes = [i for i in df_mensuales.iloc[:,0]]
+   df = banco.largeGET(codes,turbo=True, nucleos=4)
 
 
 La mayoria de computadoras modernas tienen de 2 a 4 nucleos CPU. Si no esta seguro cuantos nucleos y 4 no funciona, trate con nucleos=2. 
