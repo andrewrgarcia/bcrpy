@@ -1,4 +1,3 @@
-import pickle
 import sqlite3
 import os
 
@@ -8,7 +7,7 @@ from termcolor import colored
 import pandas as pd
 from pathos.multiprocessing import ProcessPool
 
-from bcrpy.utils import save_dataframe, load_dataframe
+from bcrpy.utils import save_dataframe, load_dataframe, save_df_as_sql, load_from_sqlite
 from bcrpy.hacha import Axe
 
 class Fetcher:
@@ -68,9 +67,6 @@ class Fetcher:
         cache_filename = "cache.bcrfile"
         sql_cache_filename = "cache.db"
 
-
-
-
         # Handle cache based on the chosen storage format
         if storage == 'df':
             # DataFrame Cache Logic
@@ -85,7 +81,7 @@ class Fetcher:
             # SQLite Cache Logic
             if os.path.exists(sql_cache_filename) and not forget:
                 print(colored("Obteniendo información de datos desde la memoria caché (SQLite)", "green", attrs=["blink"]))
-                return self.load_from_sqlite(sql_cache_filename)
+                return load_from_sqlite(sql_cache_filename)
             elif forget and os.path.exists(sql_cache_filename):
                 os.remove(sql_cache_filename)  # Clear cache if forget=True
 
@@ -123,7 +119,7 @@ class Fetcher:
             self.save_to_sqlite(data, header, sql_cache_filename)
             print(colored("Data saved to SQLite database cache.", "green"))
 
-            return self.load_from_sqlite(sql_cache_filename)
+            return load_from_sqlite(sql_cache_filename)
 
     def get_data_for_chunk(self, chunk):
         """Helper function for largeGET; Get data for a single chunk."""
@@ -179,12 +175,6 @@ class Fetcher:
 
         axe = Axe()
         codigo_chunks = [valid_codes[i:i + chunk_size] for i in range(0, len(valid_codes), chunk_size)]
-        sql_cache_filename = "large_cache.db"
-
-        # Reset SQLite database if storage is 'sql'
-        if storage == 'sql':
-            with sqlite3.connect(sql_cache_filename) as conn:
-                conn.execute("DROP TABLE IF EXISTS time_series;")  # Clear previous data if it exists
 
         all_chunks = []
 
@@ -193,38 +183,29 @@ class Fetcher:
             with ProcessPool(processes=nucleos) as pool:
                 results = pool.map(self.get_data_for_chunk, codigo_chunks)
                 for df_chunk in results:
-                    if storage == 'df':
-                        all_chunks.append(df_chunk)
-                    elif storage == 'sql':
-                        self.save_chunk_to_sqlite(df_chunk, sql_cache_filename)
+                    all_chunks.append(df_chunk)
+
         else:
             for idx, chunk in enumerate(codigo_chunks):
                 try:
                     data_chunk = self.get_data_for_chunk(chunk)
-                    if storage == 'df':
-                        all_chunks.append(data_chunk)
-                    elif storage == 'sql':
-                        self.save_chunk_to_sqlite(data_chunk, sql_cache_filename)
+                    all_chunks.append(data_chunk)
                     print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
                 except Exception as e:
                     print(f"Error en el fragmento {idx + 1}: {e}")
 
-        # Combine all chunks into a single DataFrame if storage is 'df'
+        final_dataframe = axe.forge(all_chunks)
+        self.codes = [col.split(", codigo no. ")[-1] for col in final_dataframe.columns] if turbo else valid_codes
+        print(self.codes)
+        print(f"Todos los fragmentos han sido obtenidos! (n={len(self.codes)})")
+
         if storage == 'df':
-            final_dataframe = axe.forge(all_chunks)
             save_dataframe(final_dataframe, "large_cache.bcrfile")
-            self.codes = [col.split(", codigo no. ")[-1] for col in final_dataframe.columns] if turbo else valid_codes
-            print(self.codes)
-            print(f"Todos los fragmentos han sido obtenidos! (n={len(self.codes)})")
+        else: 
+            print(final_dataframe)
+            save_df_as_sql(final_dataframe, "large_cache.db" ,'time_series')
 
-            return final_dataframe
-        
-        elif storage == 'sql':
-            print(self.codes)
-            print(f"Todos los fragmentos han sido obtenidos! (n={len(self.codes)})")
-
-            return self.load_from_sqlite(sql_cache_filename)
-
+        return final_dataframe
 
 
     def check_metadata_codes(self):
@@ -252,23 +233,6 @@ class Fetcher:
 
         return valid_codes
 
-
-    def save_chunk_to_sqlite(self, df, db_name="large_cache.db"):
-        """Save a DataFrame chunk to the SQLite database."""
-        with sqlite3.connect(db_name) as conn:
-            # Ensure the table exists before adding columns
-            conn.execute("CREATE TABLE IF NOT EXISTS time_series (date TEXT PRIMARY KEY)")
-            
-            # Check existing columns and add only new ones
-            existing_columns = [row[1] for row in conn.execute("PRAGMA table_info(time_series);").fetchall()]
-            for col in df.columns:
-                if col not in existing_columns:
-                    conn.execute(f"ALTER TABLE time_series ADD COLUMN \"{col}\" REAL")
-            
-            # Insert DataFrame rows into the SQLite table
-            df.to_sql("time_series", conn, if_exists="append", index=False)
-
-
     def save_to_sqlite(self, data, header, db_name="cache.db"):
         """Save JSON data directly to an SQLite database in a structured format."""
         with sqlite3.connect(db_name) as conn:
@@ -293,12 +257,3 @@ class Fetcher:
                 conn.execute(insert_query, [date] + values)
 
             conn.commit()
-
-
-
-    def load_from_sqlite(self, db_name="cache.db"):
-        """Load data from the SQLite cache and return as a DataFrame."""
-        with sqlite3.connect(db_name) as conn:
-            df = pd.read_sql("SELECT * FROM time_series", conn, index_col="date")
-            print("Data loaded from SQLite:", df.head())  # Debug: print first few rows to verify loading
-            return df

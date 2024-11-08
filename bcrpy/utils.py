@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 from difflib import get_close_matches
+import sqlite3
 
 def scan_columns(df: pd.DataFrame, keyword: str, cutoff: float = 0.65):
     """
@@ -65,64 +66,36 @@ def load_dataframe(filename):
         return pickle.load(open(filename, "rb"), encoding="latin1")
 
 
-def edit_distance(s1, s2, n, m, dp):
-    """This is a memoized version of recursion i.e. Top-Down DP: to find minimum number
-    operations to convert str1 to str2
-    external credit: # This code is contributed by divyesh072019.
-    source: GeeksforGeeks https://www.geeksforgeeks.org/edit-distance-dp-5/
+def save_df_as_sql(df, db_name, table_name='time series'):
     """
-    # If any string is empty,
-    # return the remaining characters of other string
-    if n == 0:
-        return m
-    if m == 0:
-        return n
-
-    # To check if the recursive tree
-    # for given n & m has already been executed
-    if dp[n][m] != -1:
-        return dp[n][m]
-
-    # If characters are equal, execute
-    # recursive function for n-1, m-1
-    if s1[n - 1] == s2[m - 1]:
-        if dp[n - 1][m - 1] == -1:
-            dp[n][m] = edit_distance(s1, s2, n - 1, m - 1, dp)
-            return dp[n][m]
-        else:
-            dp[n][m] = dp[n - 1][m - 1]
-            return dp[n][m]
-
-    # If characters are nt equal, we need to
-    # find the minimum cost out of all 3 operations.
-    else:
-        if dp[n - 1][m] != -1:
-            m1 = dp[n - 1][m]
-        else:
-            m1 = edit_distance(s1, s2, n - 1, m, dp)
-
-        if dp[n][m - 1] != -1:
-            m2 = dp[n][m - 1]
-        else:
-            m2 = edit_distance(s1, s2, n, m - 1, dp)
-        if dp[n - 1][m - 1] != -1:
-            m3 = dp[n - 1][m - 1]
-        else:
-            m3 = edit_distance(s1, s2, n - 1, m - 1, dp)
-
-        dp[n][m] = 1 + min(m1, min(m2, m3))
-        return dp[n][m]
-
-
-def levenshtein_ratio(str1, str2):
-    """this is the Levenshtein similarity ratio
-    https://www.datacamp.com/tutorial/fuzzy-string-python
+    Saves a DataFrame with time series data to an SQLite database.
+    
+    Parameters:
+    - df: pandas.DataFrame, the DataFrame containing time series data.
+    - db_name: str, the name of the SQLite database file (e.g., 'database.db').
+    - table_name: str, the name of the table in the database to save the data to.
     """
+    # Ensure the index is reset if it's a DateTime index for compatibility
+    if isinstance(df.index, pd.DatetimeIndex):
+        df = df.reset_index()
 
-    n = len(str1)
-    m = len(str2)
-    dp = [[-1 for i in range(m + 1)] for j in range(n + 1)]
+    # Connect to the SQLite database (or create it if it doesn't exist)
+    conn = sqlite3.connect(db_name)
+    try:
+        # Save the DataFrame to the database table
+        df.to_sql(table_name, conn, if_exists='replace', index=False)
+        print(f"Data saved successfully to '{table_name}' in '{db_name}'.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close the database connection
+        conn.close()
 
-    lev = edit_distance(str1, str2, n, m, dp)
-
-    return ((n + m) - lev) / (n + m)
+def load_from_sqlite(db_name, table_name='time_series'):
+    """Load data from the SQLite cache and return as a DataFrame."""
+    with sqlite3.connect(db_name) as conn:
+        df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
+        df.set_index("date", inplace=True)
+        df.index = pd.to_datetime(df.index)  # Convert index to datetime if necessary
+        print("Data loaded from SQLite:", df.head())
+        return df
