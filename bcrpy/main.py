@@ -24,22 +24,22 @@ class Marco(Fetcher, MetadataHandler):
             DataFrame to store extracted data from BCRPData.
         codes : list of str
             List of series codes of interest.
-        formato : str
-            Format for extracting/processing data (default: 'json').
-        fechaini : str
+        start : str
             Start date for the selected series in year-month format (default: '2010-1').
-        fechafin : str
+        end : str
             End date for the selected series in year-month format (default: '2016-9').
-        idioma : str
+        format : str
+            Format for extracting/processing data (default: 'json').
+        lang : str
             Selected language (default: 'ing' for English). Other option is 'esp' for Spanish.
         """
         self.metadata: pd.DataFrame = pd.DataFrame()
         self.data: pd.DataFrame = pd.DataFrame()
         self.codes: list[str] = ["PN01288PM", "PN01289PM"]
-        self.formato: str = "json"
-        self.fechaini: str = "2010-1"
-        self.fechafin: str = "2016-9"
-        self.idioma: str = "ing"
+        self.start: str = "2010-1"
+        self.end: str = "2016-9"
+        self.format: str = "json"
+        self.lang: str = "ing"
 
 
     def parameters(self):
@@ -50,10 +50,10 @@ class Marco(Fetcher, MetadataHandler):
         text = f"""
 {cyan('.metadata')} = {'<vacio>' if self.metadata.empty else str(type(self.metadata))+' size: '+str(self.metadata.shape)}
 {cyan('.codes')} = {self.codes}
-{cyan('.formato')} = {self.formato}
-{cyan('.fechaini')} = {self.fechaini}
-{cyan('.fechafin')} = {self.fechafin}
-{cyan('.idioma')} = {self.idioma}
+{cyan('.format')} = {self.format}
+{cyan('.start')} = {self.start}
+{cyan('.end')} = {self.end}
+{cyan('.lang')} = {self.lang}
 """
         print(colored("Estado actual de parametros constructores del objeto:", "green"))
         print(text)

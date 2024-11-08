@@ -12,7 +12,7 @@ from bcrpy.utils import save_dataframe, load_dataframe
 from bcrpy.hacha import Axe
 
 class Fetcher:
-    def GET(self, codes=[], forget=False, order=True, datetime=True, check_codes=False, storage='df'):
+    def GET(self, codes=[], start=None, end=None, forget=False, order=True, datetime=True, check_codes=False, storage='df'):
         """
         Extrae datos de BCRPData seleccionados por las variables declaradas previamente.
 
@@ -22,6 +22,12 @@ class Fetcher:
             Lista de códigos de series de datos a extraer. Si se proporciona, esta lista reemplaza 
             la lista predeterminada en `self.codes` y se utiliza para la solicitud GET. Si es None 
             (predeterminado), se utilizará la lista de `self.codes` existente.
+        start : str, optional
+            Fecha de inicio en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza 
+            `self.start` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.start`.
+        end : str, optional
+            Fecha de fin en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza 
+            `self.end` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.end`.
         forget : bool
             Si True, se restablecerá el caché y se obtendrán los datos nuevamente incluso si ya existen en el caché.
         order : bool
@@ -38,11 +44,15 @@ class Fetcher:
         """
         if bool(len(codes)):
             self.codes = codes
+        if start is not None:
+            self.start = start
+        if end is not None:
+            self.end = end
 
         root = "https://estadisticas.bcrp.gob.pe/estadisticas/series/api"
-        format = self.formato
-        period = "{}/{}".format(self.fechaini, self.fechafin)
-        language = self.idioma
+        format = self.format
+        period = "{}/{}".format(self.start, self.end)
+        language = self.lang
 
         if check_codes:
             valid_codes = self.check_metadata_codes()
@@ -115,12 +125,6 @@ class Fetcher:
 
             return self.load_from_sqlite(sql_cache_filename)
 
-
-
-
-
-
-
     def get_data_for_chunk(self, chunk):
         """Helper function for largeGET; Get data for a single chunk."""
         self.codes = chunk
@@ -128,7 +132,7 @@ class Fetcher:
         df.columns = [f"{col}, codigo no. {chunk[idx]}" for idx, col in enumerate(df.columns)]
         return df
 
-    def largeGET(self, codes=[], chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
+    def largeGET(self, codes=[], start=None, end=None, chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
         """
         Extrae los datos del BCRPData seleccionados para cantidades mayores a 100 series temporales.
 
@@ -137,6 +141,12 @@ class Fetcher:
         codes : list, optional
             Lista de códigos de series temporales a obtener y/o obtenidos [para el caso de turbo (cómputo paralelo)].
             El valor predeterminado es una lista vacía.
+        start : str, optional
+            Fecha de inicio en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza 
+            `self.start` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.start`.
+        end : str, optional
+            Fecha de fin en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza 
+            `self.end` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.end`.
         chunk_size : int, optional
             Número de series temporales para obtener en cada fragmento. El valor predeterminado es 100.
         turbo : bool, optional
@@ -154,6 +164,10 @@ class Fetcher:
         - Cuando el modo turbo está desactivado, la extracción se realiza secuencialmente.
         - Se utiliza la clase `Axe` para combinar los datos extraídos de los diferentes fragmentos en un solo DataFrame.
         """
+        if start is not None:
+            self.start = start
+        if end is not None:
+            self.end = end
 
         if check_codes:
             valid_codes = self.check_metadata_codes()

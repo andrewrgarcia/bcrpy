@@ -167,8 +167,8 @@ En este ejemplo, extraemos datos de series temporales y almacenamos los resultad
    # Crear objeto y configurar parámetros de consulta
    banco = bcrpy.Marco()
    banco.codes = ['PN01273PM', 'PN00015MM']
-   banco.fechaini = '2020-1'
-   banco.fechafin = '2021-1'
+   banco.start = '2020-1'
+   banco.end = '2021-1'
 
    # Extracción en formato DataFrame
    df = banco.GET(storage='df')
@@ -236,10 +236,10 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
    import matplotlib.pyplot as plt
    plt.style.use("seaborn")
 
-   #escoger los inputs de los datos que se desean extraer del BCRPData (otros datos como banco.idioma (='ing') son predeterminados, pero tambien se pueden cambiar)
+   #escoger los inputs de los datos que se desean extraer del BCRPData (otros datos como banco.lang (='ing') son predeterminados, pero tambien se pueden cambiar)
    banco.codes = ['PN01273PM','PN00015MM','PN01289PM','PD39793AM']
-   banco.fechaini = '2011-1'
-   banco.fechafin = '2021-1'
+   banco.start = '2011-1'
+   banco.end = '2021-1'
 
    banco.parameters()			# mostrar el estado actual de los inputs escogidos 
 
@@ -268,20 +268,20 @@ Como podemos ver abajo, estos datos son almacenados en la variable ``df``, la cu
       ================ === ===========================================
       objeto.metadata   =     <class 'pandas.core.frame.DataFrame'> size: (14858, 14)
       objeto.codes    =     ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
-      objeto.formato    =     json
-      objeto.fechaini   =     2011-1
-      objeto.fechafin   =     2021-1
-      objeto.idioma     =     ing
+      objeto.format    =     json
+      objeto.start   =     2011-1
+      objeto.end   =     2021-1
+      objeto.lang     =     ing
       ================ === ===========================================
       
 **Object Attributes:**
 
 - **objeto.metadata**: `<class 'pandas.core.frame.DataFrame'>` size: (14858, 14)
 - **objeto.codes**: ['PN01273PM', 'PN00015MM', 'PN01289PM', 'PD39793AM']
-- **objeto.formato**: json
-- **objeto.fechaini**: 2011-1
-- **objeto.fechafin**: 2021-1
-- **objeto.idioma**: ing
+- **objeto.format**: json
+- **objeto.start**: 2011-1
+- **objeto.end**: 2021-1
+- **objeto.lang**: ing
 
 ``Orden de datos determinados por usuario:``
 
@@ -423,8 +423,8 @@ Para correr **largeGET** con concurrencia (computacion paralela en nucleos CPU),
    import bcrpy
 
    banco = bcrpy.Marco()			# cargar objeto
-   banco.fechaini = '2002'
-   banco.fechafin = '2022'
+   banco.start = '2002'
+   banco.end = '2022'
 
    # extraer metadatos para Series anuales (columna 5 == Frecuencia)
    df_mensuales = banco.wordsearch("Anual",cutoff=1,columnas=[5])
