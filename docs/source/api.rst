@@ -6,11 +6,16 @@ Para los detalles de cualquier metodo de ``bcrpy``, se puede hacer una busqueda 
 
 Metodos globales
 -------------------
+.. autoclass:: bcrpy.scan_columns
+
 .. autoclass:: bcrpy.save_dataframe
 
 .. autoclass:: bcrpy.load_dataframe
 
-.. autoclass:: bcrpy.scan_columns
+.. autoclass:: bcrpy.save_df_as_sql
+
+.. autoclass:: bcrpy.load_from_sqlite
+
 
 
 Metodos locales a la clase ``bcrpy.Marco``
