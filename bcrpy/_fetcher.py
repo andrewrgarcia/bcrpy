@@ -111,7 +111,7 @@ class Fetcher:
         Extrae los datos del BCRPData seleccionados para cantidades mayores a 100 series temporales.
 
         Parameters
-        ----------
+        -------------
         codes : list, optional
             Lista de códigos de series temporales a obtener y/o obtenidos [para el caso de turbo (cómputo paralelo)].
             El valor predeterminado es una lista vacía.
@@ -130,13 +130,7 @@ class Fetcher:
         check_codes : bool, optional
             Si True, valida los códigos de las series temporales contra los metadatos antes de realizar la solicitud. El valor predeterminado es False.
         storage : str, optional
-        Almacenamiento de datos: 'df' (DataFrame) o 'sql' (SQLite). Controla el formato en el que se almacena y devuelve la información.        
-        
-        Notas
-        -----
-        - En el modo turbo, se utiliza un `ProcessPool` para distribuir la extracción de datos en múltiples procesos.
-        - Cuando el modo turbo está desactivado, la extracción se realiza secuencialmente.
-        - Se utiliza la clase `Axe` para combinar los datos extraídos de los diferentes fragmentos en un solo DataFrame.
+            Almacenamiento de datos 'df' (DataFrame) o 'sql' (SQLite). Controla el formato en el que se almacena y devuelve la información.
         """
         if start is not None:
             self.start = start
