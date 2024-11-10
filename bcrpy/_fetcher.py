@@ -13,26 +13,33 @@ from bcrpy.hacha import Axe
 class Fetcher:
     def GET(self, codes=[], start=None, end=None, forget=False, order=True, datetime=True, check_codes=False, storage='df'):
         """
-        Extrae datos de BCRPData seleccionados por las variables declaradas previamente.
+        Extracts selected data from BCRPData based on previously declared variables.
 
         Parameters
-        ------------
+        ----------
         codes : list, optional
-            Lista de códigos de series de datos a extraer. Si se proporciona, esta lista reemplaza la lista predeterminada en `self.codes` y se utiliza para la solicitud GET. Si es None (predeterminado), se utilizará la lista de `self.codes` existente.
+            List of data series codes to extract. If provided, this list replaces the default list in `self.codes` and is used for the GET request. If None (default), the existing `self.codes` list will be used.
+        
         start : str, optional
-            Fecha de inicio en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.start` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.start`.
+            Start date in 'YYYY-M' format for the data series. If provided, this date replaces `self.start` defined in the constructor, only for this request. If not provided, `self.start` is used.
+        
         end : str, optional
-            Fecha de fin en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.end` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.end`.
+            End date in 'YYYY-M' format for the data series. If provided, this date replaces `self.end` defined in the constructor, only for this request. If not provided, `self.end` is used.
+        
         forget : bool
-            Si True, se restablecerá el caché y se obtendrán los datos nuevamente incluso si ya existen en el caché.
+            If True, resets the cache, retrieving data again even if it already exists in the cache.
+        
         order : bool
-            Las columnas mantienen el orden declarado por el usuario en objeto.codes con opción order=True (predeterminado). Cuando order=False, las columnas de los datos es la predeterminada por BCRPData.
+            Maintains column order declared by the user in `object.codes` with order=True (default). When order=False, columns follow BCRPData's default order.
+        
         datetime : bool
-            Formato de las fechas en el pandas.DataFrame. Predeterminado: True convierte fechas con el formato str(MMM.YYYY) (ejemplo Apr.2022) de BCRPData a la estructura de datos Timestamp(YYYY-MM-01) que es elástico para las gráficas visuales y otras manipulaciones de datos. False mantiene el formato rígido str(MMM.YYYY) de BCRPData.
+            Format of dates in the pandas.DataFrame. Default: True converts dates from BCRPData's str(MMM.YYYY) format (e.g., Apr.2022) to Timestamp(YYYY-MM-01), allowing for flexible visual graphs and other data manipulations. False keeps the original str(MMM.YYYY) format from BCRPData.
+        
         check_codes : bool
-            Si True, los códigos de series serán validados contra los metadatos antes de realizar la solicitud GET (predeterminado: False).
+            If True, series codes are validated against metadata before making the GET request (default: False).
+        
         storage : str, optional
-            Almacenamiento de datos: 'df' (DataFrame) o 'sql' (SQLite). Controla el formato en el que se almacena y devuelve la información.
+            Data storage format: 'df' (DataFrame) or 'sql' (SQLite). Controls the format in which the information is stored and returned.
         """
         if bool(len(codes)):
             self.codes = codes
@@ -101,26 +108,33 @@ class Fetcher:
 
     def largeGET(self, codes=[], start=None, end=None, forget=True, chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
         """
-        Extrae los datos del BCRPData seleccionados para cantidades mayores a 100 series temporales.
+        Extracts selected BCRPData series when the quantity exceeds 100 time series.
 
         Parameters
         -------------
         codes : list, optional
-            Lista de códigos de series temporales a obtener y/o obtenidos para el caso de turbo (cómputo paralelo). El valor predeterminado es una lista vacía.
+            List of time series codes to retrieve, used in turbo mode (parallel computation). Default is an empty list.
+        
         start : str, optional
-            Fecha de inicio en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.start` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.start`.
+            Start date in 'YYYY-M' format for the data series. If provided, this date replaces `self.start` defined in the constructor, only for this request. If not provided, `self.start` is used.
+        
         end : str, optional
-            Fecha de fin en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.end` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.end`.
+            End date in 'YYYY-M' format for the data series. If provided, this date replaces `self.end` defined in the constructor, only for this request. If not provided, `self.end` is used.
+        
         chunk_size : int, optional
-            Número de series temporales para obtener en cada fragmento. El valor predeterminado es 100.
+            Number of time series to retrieve per chunk. Default is 100.
+        
         turbo : bool, optional
-            Indica si se debe utilizar el modo "turbo" para la extracción paralela. El valor predeterminado es True.
+            Indicates whether to use "turbo" mode for parallel extraction. Default is True.
+        
         nucleos : int, optional
-            Número de núcleos de procesador ("cores") a utilizar en el modo "turbo". El valor predeterminado es 4.
+            Number of processor cores to use in "turbo" mode. Default is 4.
+        
         check_codes : bool, optional
-            Si True, valida los códigos de las series temporales contra los metadatos antes de realizar la solicitud. El valor predeterminado es False.
+            If True, validates the time series codes against metadata before making the request. Default is False.
+        
         storage : str, optional
-            Almacenamiento de datos: `df` (DataFrame) o `sql` (SQLite). Controla el formato en el que se almacena y devuelve la información.
+            Data storage format: `df` (DataFrame) or `sql` (SQLite). Controls the format in which the data is stored and returned.
         """
         if start is not None:
             self.start = start
