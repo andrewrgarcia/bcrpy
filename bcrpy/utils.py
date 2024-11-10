@@ -71,9 +71,10 @@ def save_df_as_sql(df, db_name, table_name='time series'):
     Saves a DataFrame with time series data to an SQLite database.
     
     Parameters:
-    - df: pandas.DataFrame, the DataFrame containing time series data.
-    - db_name: str, the name of the SQLite database file (e.g., 'database.db').
-    - table_name: str, the name of the table in the database to save the data to.
+    --------------
+    df: pandas.DataFrame, the DataFrame containing time series data.
+    db_name: str, the name of the SQLite database file (e.g., 'database.db').
+    table_name: str, the name of the table in the database to save the data to.
     """
     # Ensure the index is reset if it's a DateTime index for compatibility
     if isinstance(df.index, pd.DatetimeIndex):
