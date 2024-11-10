@@ -19,28 +19,20 @@ class Fetcher:
         ------------
         codes : list, optional
             Lista de códigos de series de datos a extraer. Si se proporciona, esta lista reemplaza la lista predeterminada en `self.codes` y se utiliza para la solicitud GET. Si es None (predeterminado), se utilizará la lista de `self.codes` existente.
-
         start : str, optional
             Fecha de inicio en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.start` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.start`.
-
         end : str, optional
             Fecha de fin en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.end` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.end`.
-
         forget : bool
             Si True, se restablecerá el caché y se obtendrán los datos nuevamente incluso si ya existen en el caché.
-
         order : bool
             Las columnas mantienen el orden declarado por el usuario en objeto.codes con opción order=True (predeterminado). Cuando order=False, las columnas de los datos es la predeterminada por BCRPData.
-
         datetime : bool
             Formato de las fechas en el pandas.DataFrame. Predeterminado: True convierte fechas con el formato str(MMM.YYYY) (ejemplo Apr.2022) de BCRPData a la estructura de datos Timestamp(YYYY-MM-01) que es elástico para las gráficas visuales y otras manipulaciones de datos. False mantiene el formato rígido str(MMM.YYYY) de BCRPData.
-
         check_codes : bool
             Si True, los códigos de series serán validados contra los metadatos antes de realizar la solicitud GET (predeterminado: False).
-
         storage : str, optional
             Almacenamiento de datos: 'df' (DataFrame) o 'sql' (SQLite). Controla el formato en el que se almacena y devuelve la información.
-            
         """
         if bool(len(codes)):
             self.codes = codes
@@ -112,36 +104,23 @@ class Fetcher:
         Extrae los datos del BCRPData seleccionados para cantidades mayores a 100 series temporales.
 
         Parameters
-        ----------
+        -------------
         codes : list, optional
-            Lista de códigos de series temporales a obtener y/o obtenidos [para el caso de turbo (cómputo paralelo)].
-            El valor predeterminado es una lista vacía.
-
+            Lista de códigos de series temporales a obtener y/o obtenidos para el caso de turbo (cómputo paralelo). El valor predeterminado es una lista vacía.
         start : str, optional
-            Fecha de inicio en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza 
-            `self.start` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.start`.
-
+            Fecha de inicio en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.start` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.start`.
         end : str, optional
-            Fecha de fin en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza 
-            `self.end` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.end`.
-
+            Fecha de fin en formato 'YYYY-M' para las series de datos. Si se proporciona, esta fecha reemplaza `self.end` definida en el constructor, solo para esta solicitud. Si no se proporciona, se usa `self.end`.
         chunk_size : int, optional
             Número de series temporales para obtener en cada fragmento. El valor predeterminado es 100.
-
         turbo : bool, optional
             Indica si se debe utilizar el modo "turbo" para la extracción paralela. El valor predeterminado es True.
-
         nucleos : int, optional
             Número de núcleos de procesador ("cores") a utilizar en el modo "turbo". El valor predeterminado es 4.
-
         check_codes : bool, optional
-            Si True, valida los códigos de las series temporales contra los metadatos antes de realizar la solicitud. 
-            El valor predeterminado es False.
-
+            Si True, valida los códigos de las series temporales contra los metadatos antes de realizar la solicitud. El valor predeterminado es False.
         storage : str, optional
-            Almacenamiento de datos: `df` (DataFrame) o `sql` (SQLite). Controla el formato en el que se almacena y 
-            devuelve la información.
-
+            Almacenamiento de datos: `df` (DataFrame) o `sql` (SQLite). Controla el formato en el que se almacena y devuelve la información.
         """
         if start is not None:
             self.start = start
