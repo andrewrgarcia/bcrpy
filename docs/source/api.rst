@@ -13,7 +13,6 @@ Metodos globales
 .. autoclass:: bcrpy.scan_columns
 
 
-
 Metodos locales a la clase ``bcrpy.Marco``
 ----------------------------------------------
 
