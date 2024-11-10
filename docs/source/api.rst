@@ -10,10 +10,27 @@ Metodos globales
 
 .. autoclass:: bcrpy.load_dataframe
 
+.. autoclass:: bcrpy.save_df_as_sql
+
+.. autoclass:: bcrpy.load_from_sqlite
+
+.. autoclass:: bcrpy.scan_columns
+
+
 Metodos locales a la clase ``bcrpy.Marco``
 ----------------------------------------------
 
 .. autoclass:: bcrpy.Marco
+   :members: 
+
+Clases parientes a ``bcrpy.Marco``
+----------------------------------------------
+
+
+.. autoclass:: bcrpy.Fetcher
+   :members: 
+
+.. autoclass:: bcrpy.MetadataHandler
    :members: 
 
 .. autosummary::

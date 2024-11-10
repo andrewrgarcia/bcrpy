@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bcrpy"
-version = "3.1.0"
+version = "3.2.0"
 description = "An API client for the extraction, query, and analysis of the BCRPData database from the Central Reserve Bank of Peru (BCRP)."
 authors = ["andrewrgarcia <garcia.gtr@gmail.com>"]
 license = "MIT"

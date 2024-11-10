@@ -61,31 +61,15 @@ class Fetcher:
         else:
             code_series = "-".join(self.codes)
 
-        url = f"{root}/{code_series}/{format}/{period}/{language}"
-        print(f"URL: {url}")
-
         cache_filename = "cache.bcrfile"
         sql_cache_filename = "cache.db"
 
-        # Handle cache based on the chosen storage format
-        if storage == 'df':
-            # DataFrame Cache Logic
-            if os.path.exists(cache_filename) and not forget:
-                print(colored("Obteniendo información de datos desde la memoria caché (DataFrame)", "green", attrs=["blink"]))
-                self.data = load_dataframe(cache_filename)
-                return self.data
-            elif forget and os.path.exists(cache_filename):
-                os.remove(cache_filename)  # Clear cache if forget=True
-
-        elif storage == 'sql':
-            # SQLite Cache Logic
-            if os.path.exists(sql_cache_filename) and not forget:
-                print(colored("Obteniendo información de datos desde la memoria caché (SQLite)", "green", attrs=["blink"]))
-                return load_from_sqlite(sql_cache_filename)
-            elif forget and os.path.exists(sql_cache_filename):
-                os.remove(sql_cache_filename)  # Clear cache if forget=True
-
+        if (data := self.load_from_cache(cache_filename, sql_cache_filename, forget, storage)) is not None:
+            return data 
         
+        url = f"{root}/{code_series}/{format}/{period}/{language}"
+        print(f"URL: {url}")
+
         # Fetching from URL as cache is either empty or `forget` is True
         print(colored("Obteniendo información con la URL de arriba usando requests.get. Por favor espere...", "green", attrs=["blink"]))
         response = requests.get(url)
@@ -102,8 +86,8 @@ class Fetcher:
             # Convert JSON data to DataFrame and save as cache
             df = pd.DataFrame(columns=header)
 
-            for j in data["periods"]:
-                df.loc[j["name"]] = [float(ij) if ij != "n.d." else None for ij in j["values"]]
+            for period in data["periods"]:
+                df.loc[period["name"]] = [float(value) if value != "n.d." else None for value in period["values"]]
 
             if datetime:
                 df.index = pd.to_datetime(df.index)
@@ -120,15 +104,9 @@ class Fetcher:
             print(colored("Data saved to SQLite database cache.", "green"))
 
             return load_from_sqlite(sql_cache_filename)
+        
 
-    def get_data_for_chunk(self, chunk):
-        """Helper function for largeGET; Get data for a single chunk."""
-        self.codes = chunk
-        df = self.GET(forget=True, storage='df')  # Use DataFrame as intermediate storage
-        df.columns = [f"{col}, codigo no. {chunk[idx]}" for idx, col in enumerate(df.columns)]
-        return df
-
-    def largeGET(self, codes=[], start=None, end=None, chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
+    def largeGET(self, codes=[], start=None, end=None, forget=True, chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
         """
         Extrae los datos del BCRPData seleccionados para cantidades mayores a 100 series temporales.
 
@@ -173,6 +151,12 @@ class Fetcher:
         else:
             valid_codes = codes
 
+        cache_filename = "large_cache.bcrfile"
+        sql_cache_filename = "large_cache.db"
+
+        if (data := self.load_from_cache(cache_filename, sql_cache_filename, forget, storage)) is not None:
+            return data
+        
         axe = Axe()
         codigo_chunks = [valid_codes[i:i + chunk_size] for i in range(0, len(valid_codes), chunk_size)]
 
@@ -200,13 +184,42 @@ class Fetcher:
         print(f"Todos los fragmentos han sido obtenidos! (n={len(self.codes)})")
 
         if storage == 'df':
-            save_dataframe(final_dataframe, "large_cache.bcrfile")
+            save_dataframe(final_dataframe, cache_filename)
         else: 
             print(final_dataframe)
-            save_df_as_sql(final_dataframe, "large_cache.db" ,'time_series')
+            save_df_as_sql(final_dataframe, sql_cache_filename, 'time_series')
 
         return final_dataframe
 
+    def get_data_for_chunk(self, chunk):
+        """Helper function for largeGET; Get data for a single chunk."""
+        self.codes = chunk
+        df = self.GET(forget=True, storage='df')  # Use DataFrame as intermediate storage
+        df.columns = [f"{col}, codigo no. {chunk[idx]}" for idx, col in enumerate(df.columns)]
+        return df
+
+    def load_from_cache(self, df_cache_filename, sql_cache_filename, forget, storage):
+        """
+        Helper method for GET and largeGET. Loads data from cache based on the specified storage format. 
+        Checks if the cache file exists and either loads data from it or clears it based on the `forget` parameter.
+        """
+        def handle_cache_loading(filename, load_structure, text):
+            # Cache Logic
+            if os.path.exists(filename) and not forget:
+                print(colored(f"Obteniendo información de datos desde la memoria caché ({text})", "green", attrs=["blink"]))
+                self.data = load_structure(filename)
+                return self.data
+            elif forget and os.path.exists(filename):
+                os.remove(filename)  # Clear cache if forget=True
+                return None
+
+        # Handle cache based on the chosen storage format
+        if storage == 'df':
+            return handle_cache_loading(df_cache_filename, load_dataframe, "DataFrame")
+
+        elif storage == 'sql':
+            return handle_cache_loading(sql_cache_filename, load_from_sqlite, "SQLite")
+    
 
     def check_metadata_codes(self):
         """
