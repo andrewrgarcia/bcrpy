@@ -90,7 +90,7 @@ class Fetcher:
                 df.loc[period["name"]] = [float(value) if value != "n.d." else None for value in period["values"]]
 
             if datetime:
-                df.index = pd.to_datetime(df.index)
+                df.index = pd.to_datetime(df.index, errors="coerce")
 
             self.data = df
             self.order_columns() if order else self.order_columns(False)

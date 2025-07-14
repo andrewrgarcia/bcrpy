@@ -97,6 +97,6 @@ def load_from_sqlite(db_name, table_name='time_series'):
     with sqlite3.connect(db_name) as conn:
         df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
         df.set_index("date", inplace=True)
-        df.index = pd.to_datetime(df.index)  # Convert index to datetime if necessary
+        df.index = pd.to_datetime(df.index, errors="coerce")  # Convert index to datetime if necessary
         print("Data loaded from SQLite:", df.head())
         return df
