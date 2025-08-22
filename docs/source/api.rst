@@ -6,6 +6,10 @@ Para los detalles de cualquier metodo de ``bcrpy``, se puede hacer una busqueda 
 
 Metodos globales
 -------------------
+.. autofunction:: bcrpy.get
+   
+.. autofunction:: bcrpy.large_get
+
 .. autoclass:: bcrpy.scan_columns
 
 .. autoclass:: bcrpy.save_dataframe

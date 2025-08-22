@@ -51,3 +51,11 @@ Todos los vinculos
 `GitHub <https://github.com/andrewrgarcia/bcrpy>`_
 
 `PyPI (pip package index) <https://pypi.org/project/bcrpy>`_
+
+
+Cambios en v3.3.0
+-------------------
+
+- Nuevo: funciones wrapper ``get`` y ``large_get`` para extracción rápida de series sin necesidad de instanciar ``Marco``.
+- Mejora: manejo de cache y advertencias más claras.
+- Corrección: pruebas unitarias y documentación actualizadas.

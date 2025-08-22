@@ -155,6 +155,25 @@ Para seleccionar el formato de almacenamiento, usa el parámetro `storage` en el
    # Extracción y almacenamiento en una base de datos SQLite
    df_sql = banco.GET(storage='sql')
 
+
+Uso de funciones wrapper
+--------------------------
+
+Además de la interfaz orientada a objetos con ``Marco``, ``bcrpy`` ahora ofrece funciones wrapper más sencillas:
+
+.. code-block:: python
+
+   from bcrpy import get, large_get
+
+   # Descargar datos rápidamente con get()
+   df = get(codes=["PN01288PM"], start="2020-01", end="2020-12")
+   print(df.head())
+
+   # Descargar muchas series con large_get()
+   df_large = large_get(codes=["PN01288PM", "PN01289PM"], start="2019-01", end="2020-01", chunk_size=2)
+   print(df_large.head())
+
+
 Ejemplo de Uso con Opciones de Almacenamiento
 -------------------------------------------------------
 

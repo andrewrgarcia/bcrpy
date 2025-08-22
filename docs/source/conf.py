@@ -6,8 +6,8 @@ project = "bcrpy"
 copyright = "2023, Andrew Garcia"
 author = "Andrew Garcia, Ph.D."
 
-release = "3.2"
-version = "3.2"
+release = "3.3"
+version = "3.3"
 
 # -- General configuration
 
