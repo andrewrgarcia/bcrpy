@@ -188,12 +188,14 @@ def test_GETorden_integration():
     assert not df_unordered.empty
 
 
+@pytest.mark.integration
 def test_GETreset():
     banco.codes = ["PN01288PM", "PN01289PM", "PN00015MM"]
     banco.start = "2019-1"
     banco.end = "2021-1"
     df_reset = banco.GET(forget=True)
     assert not df_reset.empty
+
 
 
 def test_load_dataframe_roundtrip():
