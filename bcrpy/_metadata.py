@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-import pickle
 
 class MetadataHandler:
     def get_metadata(self, filename="metadata.csv"):

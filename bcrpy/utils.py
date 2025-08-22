@@ -1,7 +1,9 @@
 import pandas as pd
-import pickle
+import pickle, json, os
 from difflib import get_close_matches
 import sqlite3
+from typing import Optional
+
 
 def scan_columns(df: pd.DataFrame, keyword: str, cutoff: float = 0.65):
     """
@@ -30,35 +32,52 @@ def scan_columns(df: pd.DataFrame, keyword: str, cutoff: float = 0.65):
 
 
 
-def save_dataframe(df, filename):
-    """Guarda la informacion de datos almacenados y procesados por Python en un archivo
-
-    Parametros
-    ----------
-    filename: str
-        Nombre del archivo para guardar. Si el nombre termina con el sufijo ".csv", se guarda como archivo CSV, si termina con ".md", se guarda como archivo Markdown. En otro caso, el archivo se guarda en formato de Python ['pickle']
+def save_dataframe(df: pd.DataFrame, filename: str, meta: Optional[dict] = None):
     """
+    Save a DataFrame to disk in CSV, Markdown, or pickle format.
+    Also writes an optional .meta JSON file with context (codes, start, end, lang).
 
-    if filename[-3:] == "csv":
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The DataFrame to save.
+    filename : str
+        Target filename. Suffix determines the format:
+          - ".csv" → CSV
+          - ".md"  → Markdown
+          - else   → Pickle
+    meta : dict, optional
+        Dictionary of metadata (codes, start, end, lang, etc.) to save alongside cache.
+    """
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext == ".csv":
         df.to_csv(filename)
-
-    if filename[-3:] == ".md":
-        with open(filename, "w") as f:
+    elif ext == ".md":
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(df.to_markdown())
-
     else:
-        return pickle.dump(df, open(filename, "wb"))
+        with open(filename, "wb") as f:
+            pickle.dump(df, f)
+
+    # Save sidecar metadata if provided
+    if meta is not None:
+        sidecar = filename + ".meta"
+        with open(sidecar, "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2, ensure_ascii=False)
+
 
 
 def load_dataframe(filename):
-    """Carga la informacion de datos almacenados en un archivo a Python
+    """Load stored data from a file into Python.
 
-    Parametros
+    Parameters
     ----------
-    filename: str
-        Nombre del archivo. Si el nombre termina con el sufijo ".csv", se carga el archivo CSV. En otro caso, el archivo se carga con el modulo de Python ['pickle']
+    filename : str
+        Name of the file. 
+        If the filename ends with the ".csv" suffix, the file is loaded as a CSV. 
+        Otherwise, the file is loaded using Python's 'pickle' module.
     """
-
     if filename[-3:] == "csv":
         return pd.read_csv(filename, delimiter=",")
 

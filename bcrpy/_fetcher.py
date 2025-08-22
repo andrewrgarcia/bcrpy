@@ -1,5 +1,5 @@
 import sqlite3
-import os
+import os, datetime, json
 
 import requests
 from termcolor import colored
@@ -87,26 +87,46 @@ class Fetcher:
             df = pd.DataFrame(columns=header)
 
             for period in data["periods"]:
-                df.loc[period["name"]] = [float(value) if value != "n.d." else None for value in period["values"]]
+                df.loc[period["name"]] = [
+                    float(value) if value != "n.d." else None 
+                    for value in period["values"]
+                ]
 
             if datetime:
                 df.index = pd.to_datetime(df.index, errors="coerce")
 
             self.data = df
             self.order_columns() if order else self.order_columns(False)
-            save_dataframe(df, cache_filename)
+
+            # NEW: save with metadata sidecar
+            save_dataframe(
+                df, 
+                cache_filename,
+                meta={
+                    "codes": self.codes,
+                    "start": self.start,
+                    "end": self.end,
+                    "lang": self.lang,
+                }
+            )
 
             return self.data
+
         
         elif storage == 'sql':
-            # Save data directly to SQLite and return a confirmation message
             self.save_to_sqlite(data, header, sql_cache_filename)
             print(colored("Data saved to SQLite database cache.", "green"))
 
-            return load_from_sqlite(sql_cache_filename)
-        
+            # NEW: also write .meta sidecar
+            meta = {"codes": self.codes, "start": self.start, "end": self.end, "lang": self.lang}
+            with open(sql_cache_filename + ".meta", "w", encoding="utf-8") as f:
+                json.dump(meta, f, indent=2, ensure_ascii=False)
 
-    def largeGET(self, codes=[], start=None, end=None, forget=True, chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
+            return load_from_sqlite(sql_cache_filename)
+
+
+
+    def largeGET(self, codes=[], start=None, end=None, forget=False, chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
         """
         Extracts selected BCRPData series when the quantity exceeds 100 time series.
 
@@ -163,18 +183,18 @@ class Fetcher:
         # Process chunks
         if turbo:
             with ProcessPool(processes=nucleos) as pool:
-                results = pool.map(self.get_data_for_chunk, codigo_chunks)
+                results = pool.map(lambda ch: self.get_data_for_chunk(ch, forget=forget), codigo_chunks)
                 for df_chunk in results:
                     all_chunks.append(df_chunk)
-
         else:
             for idx, chunk in enumerate(codigo_chunks):
                 try:
-                    data_chunk = self.get_data_for_chunk(chunk)
+                    data_chunk = self.get_data_for_chunk(chunk, forget=forget)
                     all_chunks.append(data_chunk)
                     print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
                 except Exception as e:
                     print(f"Error en el fragmento {idx + 1}: {e}")
+
 
         final_dataframe = axe.forge(all_chunks)
         self.codes = [col.split(", codigo no. ")[-1] for col in final_dataframe.columns] if turbo else valid_codes
@@ -182,42 +202,94 @@ class Fetcher:
         print(f"Todos los fragmentos han sido obtenidos! (n={len(self.codes)})")
 
         if storage == 'df':
-            save_dataframe(final_dataframe, cache_filename)
-        else: 
+            # Save DataFrame with metadata sidecar
+            save_dataframe(
+                final_dataframe,
+                cache_filename,
+                meta={
+                    "codes": self.codes,
+                    "start": self.start,
+                    "end": self.end,
+                    "lang": self.lang,
+                }
+            )
+        else:
             print(final_dataframe)
             save_df_as_sql(final_dataframe, sql_cache_filename, 'time_series')
+            # You could also add a .meta file here for SQL consistency:
+            meta = {"codes": self.codes, "start": self.start, "end": self.end, "lang": self.lang}
+            with open(sql_cache_filename + ".meta", "w", encoding="utf-8") as f:
+                json.dump(meta, f, indent=2, ensure_ascii=False)
 
         return final_dataframe
 
-    def get_data_for_chunk(self, chunk):
+
+    def get_data_for_chunk(self, chunk, forget=False):
         """Helper function for largeGET; Get data for a single chunk."""
         self.codes = chunk
-        df = self.GET(forget=True, storage='df')  # Use DataFrame as intermediate storage
+        df = self.GET(forget=forget, storage='df')  # Respect parent's forget flag
         df.columns = [f"{col}, codigo no. {chunk[idx]}" for idx, col in enumerate(df.columns)]
         return df
 
+
+
     def load_from_cache(self, df_cache_filename, sql_cache_filename, forget, storage):
-        """
-        Helper method for GET and largeGET. Loads data from cache based on the specified storage format. 
-        Checks if the cache file exists and either loads data from it or clears it based on the `forget` parameter.
-        """
+        """Helper method for GET and largeGET. Handles cache logic with disclaimers + mismatch warnings."""
+
+        def sidecar_filename(fname):
+            return fname + ".meta"
+
         def handle_cache_loading(filename, load_structure, text):
-            # Cache Logic
-            if os.path.exists(filename) and not forget:
-                print(colored(f"Obteniendo información de datos desde la memoria caché ({text})", "green", attrs=["blink"]))
-                self.data = load_structure(filename)
-                return self.data
-            elif forget and os.path.exists(filename):
-                os.remove(filename)  # Clear cache if forget=True
+            if not os.path.exists(filename):
+                return None
+            if forget:
+                os.remove(filename)
+                if os.path.exists(sidecar_filename(filename)):
+                    os.remove(sidecar_filename(filename))
                 return None
 
-        # Handle cache based on the chosen storage format
+            # Try to load metadata sidecar if present
+            cache_meta = {}
+            if os.path.exists(sidecar_filename(filename)):
+                with open(sidecar_filename(filename), "r", encoding="utf-8") as f:
+                    try:
+                        cache_meta = json.load(f)
+                    except Exception:
+                        cache_meta = {}
+
+            # Show warning
+            timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filename))
+            msg = (
+                f"[CACHE] Using cached data ({text}) last updated {timestamp:%Y-%m-%d %H:%M:%S}\n"
+                f"→ Tip: run with forget=True to fetch fresh data."
+            )
+
+            # Compare codes/start/end with cache_meta if available
+            mismatches = []
+            if "codes" in cache_meta and cache_meta["codes"] != self.codes:
+                mismatches.append("codes")
+            if "start" in cache_meta and cache_meta["start"] != self.start:
+                mismatches.append("start")
+            if "end" in cache_meta and cache_meta["end"] != self.end:
+                mismatches.append("end")
+
+            if mismatches:
+                msg += (
+                    f"\n⚠️ Warning: cache parameters differ on {', '.join(mismatches)}. "
+                    "Use forget=True to refresh with your current request."
+                )
+
+            print(colored(msg, "yellow"))
+
+            self.data = load_structure(filename)
+            return self.data
+
         if storage == 'df':
             return handle_cache_loading(df_cache_filename, load_dataframe, "DataFrame")
-
         elif storage == 'sql':
             return handle_cache_loading(sql_cache_filename, load_from_sqlite, "SQLite")
-    
+
+        
 
     def check_metadata_codes(self):
         """

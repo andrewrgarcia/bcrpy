@@ -1,11 +1,8 @@
 import pandas as pd
-import requests
 import json
-import pickle
 from difflib import get_close_matches
 from termcolor import colored, cprint
 from colorama import just_fix_windows_console
-from bcrpy.utils import save_dataframe, load_dataframe
 from ._fetcher import Fetcher  
 from ._metadata import MetadataHandler
 
