@@ -1,5 +1,5 @@
 import pandas as pd
-import json
+import os, json, datetime
 from difflib import get_close_matches
 from termcolor import colored, cprint
 from colorama import just_fix_windows_console
@@ -41,18 +41,34 @@ class Marco(Fetcher, MetadataHandler):
 
     def parameters(self):
         """Declare the current state of all constructor variables of the Marco class."""
+
         def cyan(text):
             return colored(text, "cyan")
 
+        # --- Metadata freshness check ---
+        meta_info = "<vacío>"
+        if not self.metadata.empty:
+            meta_info = f"{str(type(self.metadata))} size: {self.metadata.shape}"
+            sidecar = "metadata.csv.meta"
+            if os.path.exists(sidecar):
+                try:
+                    meta = json.load(open(sidecar))
+                    ts = datetime.datetime.fromisoformat(meta["downloaded_at"])
+                    age_days = (datetime.datetime.utcnow() - ts).days
+                    if age_days > 0:
+                        meta_info += f" (age: {age_days} days)"
+                except Exception as e:
+                    meta_info += f" (⚠️ sidecar parse failed: {e})"
+
         text = f"""
-{cyan('.metadata')} = {'<vacio>' if self.metadata.empty else str(type(self.metadata))+' size: '+str(self.metadata.shape)}
+{cyan('.metadata')} = {meta_info}
 {cyan('.codes')} = {self.codes}
 {cyan('.format')} = {self.format}
 {cyan('.start')} = {self.start}
 {cyan('.end')} = {self.end}
 {cyan('.lang')} = {self.lang}
 """
-        print(colored("Estado actual de parametros constructores del objeto:", "green"))
+        print(colored("Estado actual de parámetros constructores del objeto:", "green"))
         print(text)
 
     def query(self, codigo="PD39793AM"):
