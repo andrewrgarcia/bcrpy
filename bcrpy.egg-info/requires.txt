@@ -1,0 +1,8 @@
+pandas
+requests
+termcolor
+colorama
+pytest>=9.0.2
+
+[dev]
+pytest

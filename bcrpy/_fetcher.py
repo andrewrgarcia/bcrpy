@@ -1,342 +1,256 @@
+import os
+import json
+import hashlib
 import sqlite3
-import os, datetime, json
-
-import requests
-from termcolor import colored
+from typing import List
 
 import pandas as pd
-from pathos.multiprocessing import ProcessPool
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from bcrpy.utils import save_dataframe, load_dataframe, save_df_as_sql, load_from_sqlite
-from bcrpy.hacha import Axe
+from bcrpy._http import create_session
+from bcrpy.utils import (
+    save_dataframe,
+    load_dataframe,
+    save_df_as_sql,
+    load_from_sqlite,
+)
+
+BASE_URL = "https://estadisticas.bcrp.gob.pe/estadisticas/series/api"
+CACHE_DIR = ".bcrpy_cache"
+
 
 class Fetcher:
-    def GET(self, codes=[], start=None, end=None, forget=False, order=True, datetime=True, check_codes=False, storage='df'):
-        """
-        Extracts selected data from BCRPData based on previously declared variables.
 
-        Parameters
-        ----------
-        codes : list, optional
-            List of data series codes to extract. If provided, this list replaces the default list in `self.codes` and is used for the GET request. If None (default), the existing `self.codes` list will be used.
-        
-        start : str, optional
-            Start date in 'YYYY-M' format for the data series. If provided, this date replaces `self.start` defined in the constructor, only for this request. If not provided, `self.start` is used.
-        
-        end : str, optional
-            End date in 'YYYY-M' format for the data series. If provided, this date replaces `self.end` defined in the constructor, only for this request. If not provided, `self.end` is used.
-        
-        forget : bool
-            If True, resets the cache, retrieving data again even if it already exists in the cache.
-        
-        order : bool
-            Maintains column order declared by the user in `object.codes` with order=True (default). When order=False, columns follow BCRPData's default order.
-        
-        datetime : bool
-            Format of dates in the pandas.DataFrame. Default: True converts dates from BCRPData's str(MMM.YYYY) format (e.g., Apr.2022) to Timestamp(YYYY-MM-01), allowing for flexible visual graphs and other data manipulations. False keeps the original str(MMM.YYYY) format from BCRPData.
-        
-        check_codes : bool
-            If True, series codes are validated against metadata before making the GET request (default: False).
-        
-        storage : str, optional
-            Data storage format: 'df' (DataFrame) or 'sql' (SQLite). Controls the format in which the information is stored and returned.
-        """
-        if bool(len(codes)):
-            self.codes = codes
-        if start is not None:
-            self.start = start
-        if end is not None:
-            self.end = end
+    def __init__(self, verbose: bool = True):
+        self.verbose = verbose
+        self.session = create_session()
+        os.makedirs(CACHE_DIR, exist_ok=True)
 
-        root = "https://estadisticas.bcrp.gob.pe/estadisticas/series/api"
-        format = self.format
-        period = "{}/{}".format(self.start, self.end)
-        language = self.lang
+    # ============================================================
+    # PUBLIC
+    # ============================================================
 
-        if check_codes:
-            valid_codes = self.check_metadata_codes()
-            if valid_codes is None:
-                return pd.DataFrame()
-            code_series = "-".join(valid_codes)
-        else:
-            code_series = "-".join(self.codes)
+    def GET(
+        self,
+        codes: List[str],
+        start: str,
+        end: str,
+        format: str = "json",
+        lang: str = "ing",
+        forget: bool = False,
+        datetime_index: bool = True,
+        storage: str = "df",
+    ):
 
-        cache_filename = "cache.bcrfile"
-        sql_cache_filename = "cache.db"
+        cache_df, cache_sql = self._cache_paths(codes, start, end)
 
-        if (data := self.load_from_cache(cache_filename, sql_cache_filename, forget, storage)) is not None:
-            return data 
-        
-        url = f"{root}/{code_series}/{format}/{period}/{language}"
-        print(f"URL: {url}")
+        cached = self._load_cache(cache_df, cache_sql, forget, storage)
+        if cached is not None:
+            return cached
 
-        # Fetching from URL as cache is either empty or `forget` is True
-        print(colored("Obteniendo información con la URL de arriba usando requests.get. Por favor espere...", "green", attrs=["blink"]))
-        response = requests.get(url)
+        url = self._build_url(codes, start, end, format, lang)
 
-        if response.status_code != 200:
-            print(f"Error: Unable to fetch data, status code {response.status_code}")
+        if self.verbose:
+            print(f"[GET] {url}")
+
+        data = self._fetch_json(url)
+
+        if not data:
             return pd.DataFrame()
 
-        data = response.json()
+        df = self._json_to_df(data, datetime_index)
 
-        header = [k["name"] for k in data["config"]["series"]]
+        self._save_cache(df, cache_df, cache_sql, storage, codes, start, end, format, lang)
 
-        if storage == 'df':
-            # Convert JSON data to DataFrame and save as cache
-            df = pd.DataFrame(columns=header)
-
-            for period in data["periods"]:
-                df.loc[period["name"]] = [
-                    float(value) if value != "n.d." else None 
-                    for value in period["values"]
-                ]
-
-            if datetime:
-                df.index = pd.to_datetime(df.index, errors="coerce")
-
-            self.data = df
-            self.order_columns() if order else self.order_columns(False)
-
-            # NEW: save with metadata sidecar
-            save_dataframe(
-                df, 
-                cache_filename,
-                meta={
-                    "codes": self.codes,
-                    "start": self.start,
-                    "end": self.end,
-                    "lang": self.lang,
-                }
-            )
-
-            return self.data
-
-        
-        elif storage == 'sql':
-            self.save_to_sqlite(data, header, sql_cache_filename)
-            print(colored("Data saved to SQLite database cache.", "green"))
-
-            # NEW: also write .meta sidecar
-            meta = {"codes": self.codes, "start": self.start, "end": self.end, "lang": self.lang}
-            with open(sql_cache_filename + ".meta", "w", encoding="utf-8") as f:
-                json.dump(meta, f, indent=2, ensure_ascii=False)
-
-            return load_from_sqlite(sql_cache_filename)
-
-
-
-    def largeGET(self, codes=[], start=None, end=None, forget=False, chunk_size=100, turbo=True, nucleos=4, check_codes=False, storage='df'):
-        """
-        Extracts selected BCRPData series when the quantity exceeds 100 time series.
-
-        Parameters
-        -------------
-        codes : list, optional
-            List of time series codes to retrieve, used in turbo mode (parallel computation). Default is an empty list.
-        
-        start : str, optional
-            Start date in 'YYYY-M' format for the data series. If provided, this date replaces `self.start` defined in the constructor, only for this request. If not provided, `self.start` is used.
-        
-        end : str, optional
-            End date in 'YYYY-M' format for the data series. If provided, this date replaces `self.end` defined in the constructor, only for this request. If not provided, `self.end` is used.
-        
-        chunk_size : int, optional
-            Number of time series to retrieve per chunk. Default is 100.
-        
-        turbo : bool, optional
-            Indicates whether to use "turbo" mode for parallel extraction. Default is True.
-        
-        nucleos : int, optional
-            Number of processor cores to use in "turbo" mode. Default is 4.
-        
-        check_codes : bool, optional
-            If True, validates the time series codes against metadata before making the request. Default is False.
-        
-        storage : str, optional
-            Data storage format: `df` (DataFrame) or `sql` (SQLite). Controls the format in which the data is stored and returned.
-        """
-        if start is not None:
-            self.start = start
-        if end is not None:
-            self.end = end
-
-        if check_codes:
-            valid_codes = self.check_metadata_codes()
-            if valid_codes is None:
-                print("No valid codes found. Skipping the large GET request.")
-                return pd.DataFrame() if storage == 'df' else None
-        else:
-            valid_codes = codes
-
-        cache_filename = "large_cache.bcrfile"
-        sql_cache_filename = "large_cache.db"
-
-        if (data := self.load_from_cache(cache_filename, sql_cache_filename, forget, storage)) is not None:
-            return data
-        
-        axe = Axe()
-        codigo_chunks = [valid_codes[i:i + chunk_size] for i in range(0, len(valid_codes), chunk_size)]
-
-        all_chunks = []
-
-        # Process chunks
-        if turbo:
-            with ProcessPool(processes=nucleos) as pool:
-                results = pool.map(lambda ch: self.get_data_for_chunk(ch, forget=forget), codigo_chunks)
-                for df_chunk in results:
-                    all_chunks.append(df_chunk)
-        else:
-            for idx, chunk in enumerate(codigo_chunks):
-                try:
-                    data_chunk = self.get_data_for_chunk(chunk, forget=forget)
-                    all_chunks.append(data_chunk)
-                    print(f"Fragmento {idx + 1}/{len(codigo_chunks)} obtenido exitosamente.")
-                except Exception as e:
-                    print(f"Error en el fragmento {idx + 1}: {e}")
-
-
-        final_dataframe = axe.forge(all_chunks)
-        self.codes = [col.split(", codigo no. ")[-1] for col in final_dataframe.columns] if turbo else valid_codes
-        print(self.codes)
-        print(f"Todos los fragmentos han sido obtenidos! (n={len(self.codes)})")
-
-        if storage == 'df':
-            # Save DataFrame with metadata sidecar
-            save_dataframe(
-                final_dataframe,
-                cache_filename,
-                meta={
-                    "codes": self.codes,
-                    "start": self.start,
-                    "end": self.end,
-                    "lang": self.lang,
-                }
-            )
-        else:
-            print(final_dataframe)
-            save_df_as_sql(final_dataframe, sql_cache_filename, 'time_series')
-            # You could also add a .meta file here for SQL consistency:
-            meta = {"codes": self.codes, "start": self.start, "end": self.end, "lang": self.lang}
-            with open(sql_cache_filename + ".meta", "w", encoding="utf-8") as f:
-                json.dump(meta, f, indent=2, ensure_ascii=False)
-
-        return final_dataframe
-
-
-    def get_data_for_chunk(self, chunk, forget=False):
-        """Helper function for largeGET; Get data for a single chunk."""
-        self.codes = chunk
-        df = self.GET(forget=forget, storage='df')  # Respect parent's forget flag
-        df.columns = [f"{col}, codigo no. {chunk[idx]}" for idx, col in enumerate(df.columns)]
         return df
 
 
+    def largeGET(
+        self,
+        codes: List[str],
+        start: str,
+        end: str,
+        format: str = "json",
+        lang: str = "ing",
+        forget: bool = False,
+        chunk_size: int = 100,
+        workers: int = 4,
+        storage: str = "df",
+    ):
 
-    def load_from_cache(self, df_cache_filename, sql_cache_filename, forget, storage):
-        """Helper method for GET and largeGET. Handles cache logic with disclaimers + mismatch warnings."""
+        cache_df, cache_sql = self._cache_paths(codes, start, end, large=True)
 
-        def sidecar_filename(fname):
-            return fname + ".meta"
+        cached = self._load_cache(cache_df, cache_sql, forget, storage)
+        if cached is not None:
+            return cached
 
-        def handle_cache_loading(filename, load_structure, text):
-            if not os.path.exists(filename):
+        chunks = [codes[i:i + chunk_size] for i in range(0, len(codes), chunk_size)]
+
+        if self.verbose:
+            print(f"[largeGET] {len(codes)} series → {len(chunks)} chunks")
+
+        results = []
+        errors = []
+
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = [
+                executor.submit(self._fetch_chunk, chunk, start, end, format, lang)
+                for chunk in chunks
+            ]
+
+            for f in as_completed(futures):
+                try:
+                    results.append(f.result())
+                except Exception as e:
+                    errors.append(str(e))
+
+        if errors and self.verbose:
+            print(f"[WARN] {len(errors)} chunks failed")
+
+        final_df = pd.concat(results, axis=1)
+
+        self._save_cache(final_df, cache_df, cache_sql, storage, codes, start, end, format, lang)
+
+        return final_df
+
+    # ============================================================
+    # CORE
+    # ============================================================
+
+    def _build_url(self, codes, start, end, format, lang):
+        code_series = "-".join(codes)
+        period = f"{start}/{end}"
+        return f"{BASE_URL}/{code_series}/{format}/{period}/{lang}"
+
+
+    def _fetch_json(self, url):
+        try:
+            r = self.session.get(url, timeout=30)
+
+            if r.status_code != 200:
+                if self.verbose:
+                    print(f"[ERROR] status {r.status_code}")
                 return None
-            if forget:
-                os.remove(filename)
-                if os.path.exists(sidecar_filename(filename)):
-                    os.remove(sidecar_filename(filename))
+
+            if not r.content:
                 return None
 
-            # Try to load metadata sidecar if present
-            cache_meta = {}
-            if os.path.exists(sidecar_filename(filename)):
-                with open(sidecar_filename(filename), "r", encoding="utf-8") as f:
-                    try:
-                        cache_meta = json.load(f)
-                    except Exception:
-                        cache_meta = {}
+            return r.json()
 
-            # Show warning
-            timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filename))
-            msg = (
-                f"[CACHE] Using cached data ({text}) last updated {timestamp:%Y-%m-%d %H:%M:%S}\n"
-                f"→ Tip: run with forget=True to fetch fresh data."
-            )
-
-            # Compare codes/start/end with cache_meta if available
-            mismatches = []
-            if "codes" in cache_meta and cache_meta["codes"] != self.codes:
-                mismatches.append("codes")
-            if "start" in cache_meta and cache_meta["start"] != self.start:
-                mismatches.append("start")
-            if "end" in cache_meta and cache_meta["end"] != self.end:
-                mismatches.append("end")
-
-            if mismatches:
-                msg += (
-                    f"\n⚠️ Warning: cache parameters differ on {', '.join(mismatches)}. "
-                    "Use forget=True to refresh with your current request."
-                )
-
-            print(colored(msg, "yellow"))
-
-            self.data = load_structure(filename)
-            return self.data
-
-        if storage == 'df':
-            return handle_cache_loading(df_cache_filename, load_dataframe, "DataFrame")
-        elif storage == 'sql':
-            return handle_cache_loading(sql_cache_filename, load_from_sqlite, "SQLite")
-
-        
-
-    def check_metadata_codes(self):
-        """
-        Check the self.codes list against the first column of the metadata.
-        Notifies the user if codes are not found in metadata or if there are no valid codes.
-        """
-        if self.metadata.empty:
-            self.get_metadata()
-
-        if not isinstance(self.metadata, pd.DataFrame):
-            print("Error: metadata is not loaded or not a DataFrame.")
-            return None  # Return None if metadata is not available
-
-        metadata_codes = self.metadata.iloc[:, 0].tolist()  # Extract codes from the first column
-        valid_codes = [code for code in self.codes if code in metadata_codes]
-        invalid_codes = [code for code in self.codes if code not in metadata_codes]
-
-        if invalid_codes:
-            print(f"Warning: The following codes were not found in metadata and will be ignored: {invalid_codes}")
-
-        if not valid_codes:
-            print("No valid codes found in metadata. Skipping the GET request.")
+        except Exception as e:
+            if self.verbose:
+                print(f"[ERROR] request failed: {e}")
             return None
 
-        return valid_codes
+
+    def _json_to_df(self, data, datetime_index=True):
+        header = [k["name"] for k in data["config"]["series"]]
+
+        df = pd.DataFrame(columns=header)
+
+        for p in data["periods"]:
+            df.loc[p["name"]] = [
+                float(v) if v != "n.d." else None
+                for v in p["values"]
+            ]
+
+        if datetime_index:
+            df.index = pd.to_datetime(df.index, errors="coerce")
+
+        return df
+
+
+    def _fetch_chunk(self, chunk, start, end, format, lang):
+        df = self.GET(
+            codes=chunk,
+            start=start,
+            end=end,
+            format=format,
+            lang=lang,
+            storage="df",
+        )
+
+        df.columns = [
+            f"{col}, codigo no. {chunk[i]}"
+            for i, col in enumerate(df.columns)
+        ]
+
+        return df
+
+    # ============================================================
+    # CACHE
+    # ============================================================
+
+    def _cache_paths(self, codes, start, end, large=False):
+        key = hashlib.md5(f"{codes}-{start}-{end}".encode()).hexdigest()
+        prefix = "large_cache" if large else "cache"
+
+        return (
+            os.path.join(CACHE_DIR, f"{prefix}_{key}.bcrfile"),
+            os.path.join(CACHE_DIR, f"{prefix}_{key}.db"),
+        )
+
+
+    def _load_cache(self, df_file, sql_file, forget, storage):
+
+        def load(file, loader):
+            if not os.path.exists(file):
+                return None
+
+            if forget:
+                os.remove(file)
+                if os.path.exists(file + ".meta"):
+                    os.remove(file + ".meta")
+                return None
+
+            if self.verbose:
+                print(f"[CACHE] {file}")
+
+            return loader(file)
+
+        if storage == "df":
+            return load(df_file, load_dataframe)
+        elif storage == "sql":
+            return load(sql_file, load_from_sqlite)
+
+
+    def _save_cache(self, df, df_file, sql_file, storage, codes, start, end, format, lang):
+
+        meta = {
+            "codes": codes,
+            "start": start,
+            "end": end,
+            "format": format,
+            "lang": lang,
+        }
+
+        if storage == "df":
+            save_dataframe(df, df_file, meta=meta)
+        else:
+            save_df_as_sql(df, sql_file, "time_series")
+
+            with open(sql_file + ".meta", "w") as f:
+                json.dump(meta, f, indent=2)
+
+    # ============================================================
+    # SQLITE
+    # ============================================================
 
     def save_to_sqlite(self, data, header, db_name="cache.db"):
-        """Save JSON data directly to an SQLite database in a structured format."""
         with sqlite3.connect(db_name) as conn:
-            # Drop table if exists
-            conn.execute("DROP TABLE IF EXISTS time_series;")
-            
-            # Create table with columns
-            columns_definitions = ["date TEXT"] + [f'"{col}" REAL' for col in header]
-            create_table_query = "CREATE TABLE time_series (" + ", ".join(columns_definitions) + ");"
-            
-            # Execute the create table query
-            conn.execute(create_table_query)
 
-            # Prepare the insert query using parameter placeholders
-            column_names = ["date"] + [f'"{col}"' for col in header]
-            insert_query = "INSERT INTO time_series (" + ", ".join(column_names) + ") VALUES (" + ", ".join(["?"] * len(column_names)) + ");"
-            
-            # Insert data row by row
-            for period in data["periods"]:
-                date = period["name"]
-                values = [float(val) if val != "n.d." else None for val in period["values"]]
-                conn.execute(insert_query, [date] + values)
+            conn.execute("DROP TABLE IF EXISTS time_series")
+
+            cols = ["date TEXT"] + [f'"{col}" REAL' for col in header]
+            conn.execute(f"CREATE TABLE time_series ({', '.join(cols)})")
+
+            insert = f"INSERT INTO time_series VALUES ({','.join(['?']*(len(header)+1))})"
+
+            for p in data["periods"]:
+                row = [p["name"]] + [
+                    float(v) if v != "n.d." else None
+                    for v in p["values"]
+                ]
+                conn.execute(insert, row)
 
             conn.commit()

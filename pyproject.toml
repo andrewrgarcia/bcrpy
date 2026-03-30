@@ -1,45 +1,30 @@
-[tool.poetry]
+[project]
 name = "bcrpy"
-version = "3.3.1"
-description = "An API client for the extraction, query, and analysis of the BCRPData database from the Central Reserve Bank of Peru (BCRP)."
-authors = ["andrewrgarcia <garcia.gtr@gmail.com>"]
-license = "MIT"
+version = "3.4.0"
+description = "Python client for BCRP economic data API"
 readme = "README.md"
+requires-python = ">=3.10"
 
-[tool.poetry.dependencies]
-python = ">=3.8,<3.13"
-requests = "^2.28.2"
-termcolor = "^2.4.0" 
-tqdm = "^4.65.0"
-tabulate = "^0.9.0"
-colorama = "^0.4.6"
-pathos = "^0.3.1"
-bottleneck = "^1.3.6"
-
-# --- numpy: needs 1.24.x for old Pythons, 1.26.x+ for >=3.9 ---
-numpy = [
-    { version = ">=1.24,<1.25", python = "<3.9" },
-    { version = ">=1.26,<2.0", python = ">=3.9" }
+dependencies = [
+    "pandas",
+    "requests",
+    "termcolor",
+    "colorama",
+    "pytest>=9.0.2",
 ]
 
-# --- pandas: needs <=2.0 for old Pythons, 2.2.x for >=3.11 ---
-pandas = [
-    { version = ">=1.5,<2.1", python = "<3.11" },
-    { version = ">=2.2,<2.3", python = ">=3.11" }
+[project.optional-dependencies]
+dev = [
+    "pytest"
 ]
-
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.3"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
-# Project URLs for PyPI
-[tool.poetry.urls]
-Homepage = "https://bcrpy.vercel.app/"
-Repository = "https://github.com/andrewrgarcia/bcrpy"
-Documentation = "https://bcrpy.readthedocs.io"
-Changelog = "https://github.com/andrewrgarcia/bcrpy/releases"
-Issues = "https://github.com/andrewrgarcia/bcrpy/issues"
+[tool.setuptools.packages.find]
+include = ["bcrpy*"]
+exclude = ["tests*"]
+
+[project.scripts]
+bcrpy = "bcrpy.cli:main"

@@ -1,47 +1,186 @@
 
-<a href="https://bcrpy.vercel.app/"><img src="https://raw.githubusercontent.com/andrewrgarcia/bcrpy/main/docs/img/bcrp_poly_logo.png?raw=true" 
-        alt="Picture" 
-        width="300" 
-        style="display: block; margin: 0 auto" /></a>
+<a href="https://bcrpy.vercel.app/">
+  <img src="https://raw.githubusercontent.com/andrewrgarcia/bcrpy/main/docs/img/bcrp_poly_logo.png" 
+       alt="BCRP Logo" 
+       width="260" 
+       style="display: block; margin: 0 auto" />
+</a>
 
 <br>
 
 <h2 align="center">bcrpy</h2>
 
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/andrewrgarcia/voxelmap/main/LICENSE)[![Documentation Status](https://readthedocs.org/projects/bcrpy/badge/?version=latest)](https://bcrpy.readthedocs.io/en/latest/?badge=latest)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+<p align="center">
+Python client for accessing and analyzing macroeconomic data from the
+<a href="https://www.bcrp.gob.pe/">Banco Central de Reserva del Perú (BCRP)</a>.
+</p>
 
-Un cliente API para la extraccion, consulta y analisis de la base de datos [BCRPData](https://estadisticas.bcrp.gob.pe/estadisticas/series/) del [Banco Central de Reserva del Peru (BCRP)](https://www.bcrp.gob.pe/) escrito para Python. Este cliente es un _wrapper_ de la [API para Desarrolladores](https://estadisticas.bcrp.gob.pe/estadisticas/series/ayuda/api) del BCRP.
+<p align="center">
+<a href="https://pypi.org/project/bcrpy/"><img src="https://img.shields.io/pypi/v/bcrpy.svg"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+<a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
 
-## Vinculos 
+---
 
-[Documentación en linea (readthedocs)](https://bcrpy.readthedocs.io/en/latest/) 
+## 📊 What is BCRP Data?
 
-[Manual bcrpy (pdf)](https://raw.githubusercontent.com/andrewrgarcia/bcrpy/main/bcrpy.pdf)
+The BCRP provides a public API with hundreds of economic time series, including:
 
-[pip package index](https://pypi.org/project/bcrpy/) 
+- Inflation (IPC)
+- GDP and economic activity
+- Interest rates
+- Monetary aggregates
+- External sector indicators
 
-[![](https://github.com/andrewrgarcia/hf10_organizer_event_kit/blob/main/05_logo_set/hf10_horizontal_logos/cmyk/hf10_horz_fcd_cmyk.png?raw=true)](CONTRIBUTING_ESP.md)
+Official API:
+👉 https://estadisticas.bcrp.gob.pe/estadisticas/series/ayuda/api
 
-En apoyo al código abierto, este repositorio se encuentra participando en Hacktoberfest 2023. Te invitamos a consultar [CONTRIBUIR](CONTRIBUTING_ESP.md) para obtener instrucciones sobre cómo contribuir como colaborador y unirte a nuestra lista de colaboradores.
+Explore data:
+👉 https://estadisticas.bcrp.gob.pe/estadisticas/series/
 
- _For English guidelines in how to participate, check the [CONTRIBUTING](CONTRIBUTING.md) file._
+---
 
+## ⚡ Overview
 
-# Instalacion
+`bcrpy` is a **lightweight data access layer** for BCRP macroeconomic data.
 
-En su sistema local (laptop o computadora) bcrpy puede ser instalada con el comando pip install bcrpy. Aun asi, se
-recomienda instalar bcrpy dentro de un ambiente virtual virtualenv. El protocolo para aquel seria el siguiente:
+It provides:
 
+- Simple Python interface (`get`, `large_get`)
+- Parallel data fetching
+- Built-in caching (disk + SQLite)
+- Metadata exploration tools
+- Clean pandas output
 
-```ruby
-virtualenv venv
-source venv/bin/activate
-pip install bcrpy
+---
+
+## 🚀 Installation (UV recommended)
+
+```bash
+git clone https://github.com/andrewrgarcia/bcrpy
+cd bcrpy
+uv sync
 ```
 
-bcrpy ha sido desarrollado con un protocolo de programación orientada a objetos (tambien conocido como *Object
-Oriented Programming (OOP)*) lo cual se reduce a que objetos pueden ser usados a almacenar metodos (funciones),
-datos, y su manejo de aquellos.
+---
 
+## ⚡ Quick Start
 
-[![](docs/img/colaboratory.svg)](https://colab.research.google.com/drive/1YdyCYeU0S98428WgBg4n9Ad9auKrurQZ?usp=sharing)
+```python
+from bcrpy import get
+
+df = get(
+    codes=["PN01288PM"],  # inflation
+    start="2020-01",
+    end="2023-01"
+)
+
+print(df.head())
+```
+
+---
+
+## 🔥 Large Requests (Parallel)
+
+```python
+from bcrpy import large_get
+
+df = large_get(
+    codes=["PN01288PM", "PN01289PM", "PN00015MM"],
+    start="2010-01",
+    end="2023-01",
+    chunk_size=2,
+    workers=4
+)
+```
+
+---
+
+## 🧠 Metadata Tools
+
+```python
+from bcrpy import Marco
+
+m = Marco()
+m.get_metadata()
+
+tools = m.tools()
+
+tools.query("PN01288PM")
+tools.wordsearch("inflacion")
+```
+
+---
+
+## 📁 Cache System
+
+Data is cached automatically:
+
+```
+.bcrpy_cache/
+├── cache_<hash>.bcrfile
+├── cache_<hash>.meta
+├── large_cache_<hash>.bcrfile
+```
+
+Features:
+
+* Automatic reuse
+* Hash-based isolation (no collisions)
+* Optional SQLite backend
+
+---
+
+## ⚙️ Configuration
+
+```python
+get(..., forget=True)     # ignore cache
+large_get(..., workers=2) # control parallelism
+```
+
+---
+
+## 🧪 Testing
+
+Run all tests:
+
+```bash
+uv run pytest -v
+```
+
+---
+
+## 🧱 Architecture
+
+```
+bcrpy/
+├── _fetcher.py     # core data retrieval
+├── _http.py        # HTTP + retry logic
+├── _metadata.py    # metadata handling
+├── tools.py        # search / query tools
+├── utils.py        # IO + helpers
+```
+
+---
+
+## 🎯 Design Principles
+
+* Minimal dependencies
+* Explicit behavior (no hidden magic)
+* Reproducibility via caching
+* Separation of concerns (data vs tools)
+
+---
+
+## 📌 Notes
+
+* No API key required (public BCRP API)
+* Network-dependent (uses official endpoint)
+* Designed for research and modeling workflows
+
+---
+
+## 📄 License
+
+MIT
